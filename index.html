@@ -472,6 +472,11 @@ input,select,button{touch-action:manipulation;}
 .pdf-template-badge{position:absolute;right:8px;top:8px;font-size:8px;color:var(--gold);font-weight:800}
 @media(max-width:900px){.pdf-template-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.pdf-template-gallery{grid-template-columns:1fr}}
+
+/* ===== SIMPLIFIED PDF COVER / FONT PANEL ===== */
+.pdf-simple-settings{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cover-admin-row{min-height:82px}
+@media(max-width:650px){.pdf-simple-settings{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -712,95 +717,94 @@ Banka bilgileri / diğer şartlar..."></textarea></div>
     <!-- COVERS TAB -->
     <div id="tabCovers" style="display:none">
       <div class="admin-card">
-        <h3>Katalog Kapak Fotoğrafı</h3>
+        <h3>PDF Katalog Kapağı</h3>
         <div class="catalog-cover-preview" id="catalogCoverPreview"><span>Kapak fotoğrafı seçilmedi</span></div>
         <div class="cover-actions">
           <label class="file-btn">Kapak Fotoğrafı Seç<input type="file" id="catalogCoverInput" accept="image/*" style="display:none"></label>
           <button class="small-btn danger-btn" id="catalogCoverRemove">Kapağı Kaldır</button>
         </div>
-        <div class="field" style="margin-top:10px"><label>PDF'de ilk sayfa olarak kullanılır.</label></div>
+        <div class="field" style="margin-top:10px"><label>PDF'nin ilk sayfası olarak kullanılır.</label></div>
       </div>
+
       <div class="admin-card">
         <h3>Kategori Kapakları</h3>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.5">
+          Sitedeki kategoriler burada ayrı ayrı görünür. Her kategori için kendi kapak görselinizi yükleyebilirsiniz.
+        </div>
         <div id="categoryCoverList"></div>
       </div>
+
       <div class="admin-card">
-        <h3>PDF Fiyat Listesi — Manuel Tasarım</h3>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.5">A3 fiyat listesi ürün sayfasını burada A-Z ayarlayabilirsiniz. Ölçüler mm'dir. Değerleri değiştirip <b>Önizle</b> ile kontrol edin.</div>
-        <div class="pdf-template-gallery" id="pdfTemplateGallery">
-          <div class="pdf-template-card" data-template="luxury">
-            <div class="pdf-template-mini"><div class="mt">OFİSCHİ • MAKAM TAKIMLARI</div><div class="box" style="left:6px;top:20px;width:45%;height:30px"><div class="pic" style="left:3px;top:3px;width:44%;height:24px"></div><div class="tbl" style="left:49%;top:3px;width:47%;height:24px"></div></div><div class="box" style="right:6px;top:20px;width:45%;height:30px"><div class="pic" style="left:3px;top:3px;width:44%;height:24px"></div><div class="tbl" style="left:49%;top:3px;width:47%;height:24px"></div></div><div class="box" style="left:6px;top:55px;width:45%;height:30px"><div class="pic" style="left:3px;top:3px;width:44%;height:24px"></div><div class="tbl" style="left:49%;top:3px;width:47%;height:24px"></div></div><div class="box" style="right:6px;top:55px;width:45%;height:30px"><div class="pic" style="left:3px;top:3px;width:44%;height:24px"></div><div class="tbl" style="left:49%;top:3px;width:47%;height:24px"></div></div></div>
-            <div class="pdf-template-name">Luxury Grid</div><div class="pdf-template-desc">A3 dikey • 6 ürün • premium fiyat listesi</div><span class="pdf-template-badge">ÖNERİLEN</span>
+        <h3>PDF Fiyat Listesi — Sabit Profesyonel Şablon</h3>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px;line-height:1.5">
+          Sayfa düzeni sabittir: <b>A3 Dikey • 6 ürün • fotoğraf + modül/ölçü tablosu + takım fiyatı</b>.
+          Aşağıdaki seçenekler yalnızca logo ve yazı tipini değiştirir.
+        </div>
+
+        <div class="admin-card" style="margin:0 0 12px;padding:14px;background:rgba(0,0,0,.18)">
+          <h3 style="margin-bottom:10px">PDF Logosu</h3>
+          <div class="form-photo-preview" id="pdfLogoPreview"><span style="font-size:10px;color:var(--text-dim)">Logo yok</span></div>
+          <div class="cover-actions">
+            <label class="file-btn">Logo Seç<input type="file" id="pdfLogoInput" accept="image/*" style="display:none"></label>
+            <button class="small-btn danger-btn" id="pdfLogoRemove">Logoyu Kaldır</button>
           </div>
-          <div class="pdf-template-card" data-template="catalog">
-            <div class="pdf-template-mini"><div class="mt" style="height:15px;padding-top:5px">ÜRÜN KATALOĞU</div><div class="box" style="left:7px;right:7px;top:26px;height:28px"><div class="pic" style="left:3px;top:3px;width:30%;height:21px"></div><div class="tbl" style="left:35%;top:3px;width:48%;height:21px"></div><div class="price" style="right:3px;top:5px">TAKIM</div></div><div class="box" style="left:7px;right:7px;top:59px;height:28px"><div class="pic" style="left:3px;top:3px;width:30%;height:21px"></div><div class="tbl" style="left:35%;top:3px;width:48%;height:21px"></div><div class="price" style="right:3px;top:5px">TAKIM</div></div></div>
-            <div class="pdf-template-name">Classic Catalog</div><div class="pdf-template-desc">Fotoğraf büyük • tablo dengeli • temiz görünüm</div>
-          </div>
-          <div class="pdf-template-card" data-template="compact">
-            <div class="pdf-template-mini"><div class="mt">FİYAT LİSTESİ</div><div class="box" style="left:6px;right:6px;top:19px;height:17px"><div class="pic" style="left:3px;top:3px;width:22%;height:11px"></div><div class="tbl" style="left:26%;top:3px;width:58%;height:11px"></div><div class="price" style="right:3px;top:3px">₺</div></div><div class="box" style="left:6px;right:6px;top:40px;height:17px"><div class="pic" style="left:3px;top:3px;width:22%;height:11px"></div><div class="tbl" style="left:26%;top:3px;width:58%;height:11px"></div><div class="price" style="right:3px;top:3px">₺</div></div><div class="box" style="left:6px;right:6px;top:61px;height:17px"><div class="pic" style="left:3px;top:3px;width:22%;height:11px"></div><div class="tbl" style="left:26%;top:3px;width:58%;height:11px"></div><div class="price" style="right:3px;top:3px">₺</div></div></div>
-            <div class="pdf-template-name">Compact Price</div><div class="pdf-template-desc">A3 dikey • 8 ürün • daha fazla ürün</div>
-          </div>
-          <div class="pdf-template-card" data-template="editorial">
-            <div class="pdf-template-mini"><div class="mt" style="background:#fff;color:#222;border-bottom:2px solid #222">OFİSCHİ</div><div style="position:absolute;left:10px;top:22px;font-size:8px;font-weight:800">VİP MAKAM</div><div class="pic" style="left:10px;top:34px;width:42%;height:50px"></div><div class="tbl" style="left:56%;top:34px;width:34%;height:50px"></div><div style="position:absolute;left:10px;right:10px;bottom:10px;border-top:1px solid #999;font-size:5px;padding-top:3px">OFİSCHİ BÜRO MOBİLYALARI</div></div>
-            <div class="pdf-template-name">Editorial</div><div class="pdf-template-desc">1 büyük ürün • prestijli katalog sunumu</div>
-          </div>
-          <div class="pdf-template-card" data-template="corporate">
-            <div class="pdf-template-mini"><div class="mt" style="background:#b08a4a">OFİSCHİ FİYAT LİSTESİ</div><div class="box" style="left:7px;right:7px;top:21px;height:28px"><div class="pic" style="left:3px;top:3px;width:28%;height:20px"></div><div class="tbl" style="left:33%;top:3px;width:47%;height:20px"></div><div class="price" style="right:3px;top:4px">₺</div></div><div class="box" style="left:7px;right:7px;top:55px;height:28px"><div class="pic" style="left:3px;top:3px;width:28%;height:20px"></div><div class="tbl" style="left:33%;top:3px;width:47%;height:20px"></div><div class="price" style="right:3px;top:4px">₺</div></div></div>
-            <div class="pdf-template-name">Corporate Gold</div><div class="pdf-template-desc">Altın vurgu • kurumsal ve güçlü görünüm</div>
-          </div>
-          <div class="pdf-template-card" data-template="imagefocus">
-            <div class="pdf-template-mini"><div class="mt" style="height:11px">MAGNUS</div><div class="pic" style="left:8px;right:8px;top:20px;height:42px"></div><div class="tbl" style="left:8px;right:8px;top:66px;height:23px"></div><div class="price" style="right:8px;bottom:8px">TAKIM ₺</div></div>
-            <div class="pdf-template-name">Image Focus</div><div class="pdf-template-desc">Büyük fotoğraf • ürün sunumu ön planda</div>
+          <div class="field" style="margin-top:12px">
+            <label>Logo Konumu</label>
+            <select id="pdfLogoPosition">
+              <option value="left">Sol</option>
+              <option value="center">Orta</option>
+              <option value="right">Sağ</option>
+            </select>
           </div>
         </div>
-        <div class="pdf-template-card" data-template="ofischi6">
-          <div class="pdf-template-mini"><div class="mt">OFİSCHİ FİYAT LİSTESİ</div><div class="box" style="left:6px;right:6px;top:18px;height:16px"><div class="pic" style="left:2px;top:2px;width:31%;height:12px"></div><div class="tbl" style="left:33%;top:2px;width:52%;height:12px"></div><div class="price" style="right:2px;top:2px">₺</div></div><div class="box" style="left:6px;right:6px;top:37px;height:16px"><div class="pic" style="left:2px;top:2px;width:31%;height:12px"></div><div class="tbl" style="left:33%;top:2px;width:52%;height:12px"></div><div class="price" style="right:2px;top:2px">₺</div></div><div class="box" style="left:6px;right:6px;top:56px;height:16px"><div class="pic" style="left:2px;top:2px;width:31%;height:12px"></div><div class="tbl" style="left:33%;top:2px;width:52%;height:12px"></div><div class="price" style="right:2px;top:2px">₺</div></div><div class="box" style="left:6px;right:6px;top:75px;height:16px"><div class="pic" style="left:2px;top:2px;width:31%;height:12px"></div><div class="tbl" style="left:33%;top:2px;width:52%;height:12px"></div><div class="price" style="right:2px;top:2px">₺</div></div></div>
-          <div class="pdf-template-name">Ofischi Fiyat Listesi 6'lı</div><div class="pdf-template-desc">A3 dikey • 6 yatay ürün bloğu • görsel + ölçü + fiyat</div><span class="pdf-template-badge">ÖNERİLEN</span>
-        </div>
-        <div class="pdf-designer">
-          <div>
-            <div class="pdf-design-controls">
-              <div class="field"><label>Sayfa</label><select id="pdfDesignFormat"><option value="A3">A3</option><option value="A4">A4</option></select></div>
-              <div class="field"><label>Yön</label><select id="pdfDesignOrientation"><option value="portrait">Dikey</option><option value="landscape">Yatay</option></select></div>
-              <div class="field"><label>Üst Boşluk (mm)</label><input type="number" id="pdfMTop" step="1"></div>
-              <div class="field"><label>Sağ Boşluk (mm)</label><input type="number" id="pdfMRight" step="1"></div>
-              <div class="field"><label>Alt Boşluk (mm)</label><input type="number" id="pdfMBottom" step="1"></div>
-              <div class="field"><label>Sol Boşluk (mm)</label><input type="number" id="pdfMLeft" step="1"></div>
-              <div class="field"><label>Başlık X (mm)</label><input type="number" id="pdfTitleX" step="1"></div>
-              <div class="field"><label>Başlık Y (mm)</label><input type="number" id="pdfTitleY" step="1"></div>
-              <div class="field"><label>Başlık Genişlik (mm)</label><input type="number" id="pdfTitleW" step="1"></div>
-              <div class="field"><label>Başlık Boyutu (pt)</label><input type="number" id="pdfTitleSize" step="1"></div>
-              <div class="field"><label>Foto X (mm)</label><input type="number" id="pdfPhotoX" step="1"></div>
-              <div class="field"><label>Foto Y (mm)</label><input type="number" id="pdfPhotoY" step="1"></div>
-              <div class="field"><label>Foto Genişlik (mm)</label><input type="number" id="pdfPhotoW" step="1"></div>
-              <div class="field"><label>Foto Yükseklik (mm)</label><input type="number" id="pdfPhotoH" step="1"></div>
-              <div class="field"><label>Tablo X (mm)</label><input type="number" id="pdfTableX" step="1"></div>
-              <div class="field"><label>Tablo Y (mm)</label><input type="number" id="pdfTableY" step="1"></div>
-              <div class="field"><label>Tablo Genişlik (mm)</label><input type="number" id="pdfTableW" step="1"></div>
-              <div class="field"><label>Tablo Satır Boyu (mm)</label><input type="number" id="pdfRowH" step="0.5"></div>
-              <div class="field"><label>TAKIM X (mm)</label><input type="number" id="pdfTeamX" step="1"></div>
-              <div class="field"><label>TAKIM Genişlik (mm)</label><input type="number" id="pdfTeamW" step="1"></div>
-              <div class="field"><label>Ürün Adı Boyutu (pt)</label><input type="number" id="pdfNameSize" step="1"></div>
-              <div class="field"><label>Tablo Yazı Boyutu (pt)</label><input type="number" id="pdfBodySize" step="0.5"></div>
-              <div class="field"><label>Fiyat Yazı Boyutu (pt)</label><input type="number" id="pdfPriceSize" step="0.5"></div>
-              <div class="field"><label>Alt Bilgi Boyutu (pt)</label><input type="number" id="pdfFooterSize" step="0.5"></div>
-              <div class="field"><label>PDF Fontu</label><select id="pdfFont"><option value="helvetica">Arial / Helvetica</option><option value="times">Times</option><option value="courier">Courier</option></select></div>
-              <div class="field"><label>Çizgi Kalınlığı (mm)</label><input type="number" id="pdfBorderWidth" step="0.1"></div>
-              <div class="field"><label>Başlık Rengi</label><input type="color" id="pdfHeaderColor"></div>
-              <div class="field"><label>Metin Rengi</label><input type="color" id="pdfTextColor"></div>
-              <div class="field wide"><label>Ürünler Sayfa Başına</label><select id="pdfItemsPerPage"><option value="1">1 ürün</option><option value="2">2 ürün</option><option value="3">3 ürün</option><option value="4">4 ürün</option><option value="5">5 ürün</option><option value="6">6 ürün</option><option value="7">7 ürün</option><option value="8">8 ürün</option><option value="9">9 ürün</option><option value="10">10 ürün</option><option value="11">11 ürün</option><option value="12">12 ürün</option><option value="13">13 ürün</option><option value="14">14 ürün</option><option value="15">15 ürün</option><option value="16">16 ürün</option><option value="17">17 ürün</option><option value="18">18 ürün</option><option value="19">19 ürün</option><option value="20">20 ürün</option><option value="21">21 ürün</option><option value="22">22 ürün</option><option value="23">23 ürün</option><option value="24">24 ürün</option><option value="25">25 ürün</option><option value="26">26 ürün</option><option value="27">27 ürün</option><option value="28">28 ürün</option><option value="29">29 ürün</option><option value="30">30 ürün</option></select></div>
-              <div class="field wide"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pdfShowLogo"> Logo göster</label></div>
-              <div class="field wide"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pdfShowCategoryHeader"> Kategori başlığını göster</label></div>
-              <div class="field wide"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="pdfShowFooter"> Alt bilgiyi göster</label></div>
+
+        <div class="admin-card" style="margin:0 0 12px;padding:14px;background:rgba(0,0,0,.18)">
+          <h3 style="margin-bottom:10px">Font Ayarları</h3>
+          <div class="field">
+            <label>PDF Fontu</label>
+            <select id="pdfFont">
+              <option value="helvetica">Arial / Helvetica</option>
+              <option value="times">Times New Roman</option>
+              <option value="courier">Courier</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Ürün Adı Boyutu (pt)</label>
+              <input type="number" id="pdfNameSize" min="7" max="20" step="0.5">
             </div>
-            <div class="quote-actions" style="justify-content:flex-start;margin-top:12px">
-              <button class="small-btn" id="pdfDesignPreviewBtn">👁 Önizle</button>
-              <button class="small-btn" id="pdfDesignResetBtn">↺ Varsayılana Dön</button>
-               <button class="small-btn" id="pdfDesignProBtn">★ A3 Dikey 6'lı Profesyonel</button>
-              <button class="small-btn accent-btn" id="pdfDesignSaveBtn">✓ Tasarımı Kaydet</button>
+            <div class="field">
+              <label>Tablo Yazı Boyutu (pt)</label>
+              <input type="number" id="pdfBodySize" min="4" max="12" step="0.5">
             </div>
           </div>
-          <div class="pdf-design-preview-wrap"><div class="pdf-design-preview" id="pdfDesignPreview"></div></div>
+          <div class="field">
+            <label>Fiyat Yazı Boyutu (pt)</label>
+            <input type="number" id="pdfPriceSize" min="6" max="16" step="0.5">
+          </div>
+          <div class="field-row">
+            <label class="small-btn" style="flex:1;display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="pdfNameBold"> Ürün adı kalın
+            </label>
+            <label class="small-btn" style="flex:1;display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="pdfBodyBold"> Tablo yazıları kalın
+            </label>
+          </div>
+          <div class="field" style="margin-top:8px">
+            <label class="small-btn" style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="pdfPriceBold"> Fiyatlar kalın
+            </label>
+          </div>
+        </div>
+
+        <div class="pdf-design-preview-wrap">
+          <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;text-align:center">Sabit A3 Dikey • 6 Ürün Önizleme</div>
+          <div class="pdf-design-preview" id="pdfDesignPreview"></div>
+        </div>
+
+        <div class="quote-actions" style="justify-content:flex-start;margin-top:12px">
+          <button class="small-btn" id="pdfDesignResetBtn">↺ Varsayılan Font</button>
+          <button class="small-btn accent-btn" id="pdfDesignSaveBtn">✓ Ayarları Kaydet</button>
         </div>
       </div>
     </div>
@@ -1323,7 +1327,7 @@ function renderCoverAdmin(){
     var row=document.createElement('div'); row.className='cover-admin-row';
     var thumb=document.createElement('div'); thumb.className='cover-admin-thumb';
     thumb.innerHTML=c.cover?'<img src="'+c.cover+'">':'Kapak yok';
-    var info=document.createElement('div'); info.innerHTML='<b>'+escapeHtml(state.lang==='tr'?c.tr:c.en)+'</b><div style="font-size:10px;color:var(--text-dim);margin-top:3px">Kategori PDF bölümünden önce kullanılır.</div>';
+    var info=document.createElement('div'); var cnt=(state.products||[]).filter(function(p){return p&&p.catId===c.id;}).length; info.innerHTML='<b>'+escapeHtml(state.lang==='tr'?c.tr:c.en)+'</b><div style="font-size:10px;color:var(--text-dim);margin-top:3px">'+cnt+' ürün • Bu kategori için PDF kapak görseli</div>';
     var actions=document.createElement('div'); actions.className='cover-actions';
     var label=document.createElement('label'); label.className='small-btn'; label.textContent='Fotoğraf Seç';
     var input=document.createElement('input'); input.type='file'; input.accept='image/*'; input.style.display='none';
@@ -1335,6 +1339,11 @@ function renderCoverAdmin(){
 }
 $('catalogCoverInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;readImageCompressed(f,1800,2400,.86,function(data){state.settings.catalogCover=data;renderCoverAdmin();markDirty();});});
 $('catalogCoverRemove').addEventListener('click',function(){state.settings.catalogCover=null;renderCoverAdmin();markDirty();});
+if($('pdfLogoInput'))$('pdfLogoInput').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  readImageCompressed(f,1200,600,.88,function(data){state.settings.logo=data;renderPdfLogoAdmin();renderCoverAdmin();markDirty();});
+});
+if($('pdfLogoRemove'))$('pdfLogoRemove').addEventListener('click',function(){state.settings.logo=null;renderPdfLogoAdmin();renderCoverAdmin();markDirty();});
 bindPdfDesigner();
 
 /* ============ ADMIN: CATALOG - CATEGORIES ============ */
@@ -1557,25 +1566,116 @@ function applyPdfTemplate(name){
   try{saveToStorage();unsavedChanges=false;refreshSaveBarVisibility();}catch(e){console.error(e);}
   renderPdfDesignerPreview();
 }
-function defaultPdfDesign(){return {format:'A3',orientation:'portrait',margin:{top:10,right:10,bottom:10,left:10},title:{x:0,y:0,w:0,size:14},photo:{x:0,y:0,w:90,h:48},table:{x:90,y:0,w:145,rowH:7.5},team:{x:235,w:42},nameSize:8.5,bodySize:6.2,priceSize:8.5,footerSize:5.5,itemsPerPage:6,showLogo:false,showCategoryHeader:false,showFooter:false,font:'helvetica',borderWidth:.35,headerColor:'#202020',textColor:'#181818',layout:'row6'};}
-function pdfDesign(){ return state.settings.pdfDesign || (state.settings.pdfDesign=defaultPdfDesign()); }
+function defaultPdfDesign(){
+  return {
+    format:'A3', orientation:'portrait',
+    margin:{top:10,right:10,bottom:10,left:10},
+    title:{x:0,y:0,w:0,size:14},
+    photo:{x:0,y:0,w:90,h:48},
+    table:{x:90,y:0,w:145,rowH:7.5},
+    team:{x:235,w:42},
+    nameSize:9, bodySize:6, priceSize:8,
+    footerSize:5.5,
+    itemsPerPage:6,
+    showLogo:true, showCategoryHeader:false, showFooter:false,
+    font:'helvetica', borderWidth:.35,
+    headerColor:'#202020', textColor:'#181818',
+    layout:'row6',
+    logoPosition:'left',
+    nameBold:true, bodyBold:false, priceBold:true
+  };
+}
+function pdfDesign(){
+  if(!state.settings.pdfDesign) state.settings.pdfDesign=defaultPdfDesign();
+  var d=state.settings.pdfDesign, base=defaultPdfDesign();
+  d=Object.assign(base,d);
+  d.margin=Object.assign(base.margin,d.margin||{});
+  d.title=Object.assign(base.title,d.title||{});
+  d.photo=Object.assign(base.photo,d.photo||{});
+  d.table=Object.assign(base.table,d.table||{});
+  d.team=Object.assign(base.team,d.team||{});
+  state.settings.pdfDesign=d;
+  return d;
+}
 function loadPdfDesigner(){
-  var d=pdfDesign(), map={pdfDesignFormat:d.format,pdfDesignOrientation:d.orientation,pdfMTop:d.margin.top,pdfMRight:d.margin.right,pdfMBottom:d.margin.bottom,pdfMLeft:d.margin.left,pdfTitleX:d.title.x,pdfTitleY:d.title.y,pdfTitleW:d.title.w,pdfTitleSize:d.title.size,pdfPhotoX:d.photo.x,pdfPhotoY:d.photo.y,pdfPhotoW:d.photo.w,pdfPhotoH:d.photo.h,pdfTableX:d.table.x,pdfTableY:d.table.y,pdfTableW:d.table.w,pdfRowH:d.table.rowH,pdfTeamX:d.team.x,pdfTeamW:d.team.w,pdfNameSize:d.nameSize,pdfBodySize:d.bodySize,pdfPriceSize:d.priceSize,pdfFooterSize:d.footerSize,pdfFont:d.font,pdfBorderWidth:d.borderWidth,pdfHeaderColor:d.headerColor,pdfTextColor:d.textColor,pdfItemsPerPage:d.itemsPerPage};
-  Object.keys(map).forEach(function(id){if($(id))$(id).value=map[id];});
-  if($('pdfShowLogo'))$('pdfShowLogo').checked=!!d.showLogo;if($('pdfShowCategoryHeader'))$('pdfShowCategoryHeader').checked=!!d.showCategoryHeader;if($('pdfShowFooter'))$('pdfShowFooter').checked=!!d.showFooter;
+  var d=pdfDesign();
+  if($('pdfFont'))$('pdfFont').value=d.font||'helvetica';
+  if($('pdfNameSize'))$('pdfNameSize').value=d.nameSize||9;
+  if($('pdfBodySize'))$('pdfBodySize').value=d.bodySize||6;
+  if($('pdfPriceSize'))$('pdfPriceSize').value=d.priceSize||8;
+  if($('pdfLogoPosition'))$('pdfLogoPosition').value=d.logoPosition||'left';
+  if($('pdfNameBold'))$('pdfNameBold').checked=d.nameBold!==false;
+  if($('pdfBodyBold'))$('pdfBodyBold').checked=!!d.bodyBold;
+  if($('pdfPriceBold'))$('pdfPriceBold').checked=d.priceBold!==false;
+  renderPdfLogoAdmin();
   renderPdfDesignerPreview();
 }
-function readPdfDesigner(skipPreview){
+function readPdfDesigner(){
   var d=pdfDesign();
-  d.format=$('pdfDesignFormat').value;d.orientation=$('pdfDesignOrientation').value;
-  d.margin={top:Number($('pdfMTop').value)||0,right:Number($('pdfMRight').value)||0,bottom:Number($('pdfMBottom').value)||0,left:Number($('pdfMLeft').value)||0};
-  d.title={x:Number($('pdfTitleX').value)||0,y:Number($('pdfTitleY').value)||0,w:Number($('pdfTitleW').value)||100,size:Number($('pdfTitleSize').value)||10};
-  d.photo={x:Number($('pdfPhotoX').value)||0,y:Number($('pdfPhotoY').value)||0,w:Number($('pdfPhotoW').value)||50,h:Number($('pdfPhotoH').value)||40};
-  d.table={x:Number($('pdfTableX').value)||0,y:Number($('pdfTableY').value)||0,w:Number($('pdfTableW').value)||100,rowH:Number($('pdfRowH').value)||8};
-  d.team={x:Number($('pdfTeamX').value)||0,w:Number($('pdfTeamW').value)||40};
-  d.nameSize=Number($('pdfNameSize').value)||10;d.bodySize=Number($('pdfBodySize').value)||6;d.priceSize=Number($('pdfPriceSize').value)||6;d.footerSize=Number($('pdfFooterSize').value)||7;d.font=$('pdfFont').value||'helvetica';d.borderWidth=Number($('pdfBorderWidth').value)||.45;d.headerColor=$('pdfHeaderColor').value||'#282828';d.textColor=$('pdfTextColor').value||'#191919';d.itemsPerPage=Math.max(1,Math.min(30,parseInt($('pdfItemsPerPage').value,10)||6));d.showLogo=$('pdfShowLogo').checked;d.showCategoryHeader=$('pdfShowCategoryHeader').checked;d.showFooter=$('pdfShowFooter').checked;
-  if(!skipPreview)renderPdfDesignerPreview();return d;
+  d.format='A3'; d.orientation='portrait'; d.layout='row6'; d.itemsPerPage=6;
+  d.font=$('pdfFont')?.value||'helvetica';
+  d.nameSize=Math.max(7,Math.min(20,Number($('pdfNameSize')?.value)||9));
+  d.bodySize=Math.max(4,Math.min(12,Number($('pdfBodySize')?.value)||6));
+  d.priceSize=Math.max(6,Math.min(16,Number($('pdfPriceSize')?.value)||8));
+  d.logoPosition=$('pdfLogoPosition')?.value||'left';
+  d.showLogo=true;
+  d.nameBold=$('pdfNameBold')?.checked!==false;
+  d.bodyBold=!!$('pdfBodyBold')?.checked;
+  d.priceBold=$('pdfPriceBold')?.checked!==false;
+  state.settings.pdfDesign=d;
+  return d;
 }
+function renderPdfLogoAdmin(){
+  var prev=$('pdfLogoPreview');
+  if(!prev)return;
+  prev.innerHTML=state.settings.logo?'<img src="'+state.settings.logo+'" alt="Logo">':'<span style="font-size:10px;color:var(--text-dim)">Logo yok</span>';
+}
+function renderPdfDesignerPreview(){
+  var p=$('pdfDesignPreview');if(!p)return;
+  var d=pdfDesign(), pageW=297, pageH=420;
+  p.style.width=pageW+'px';p.style.height=pageH+'px';p.style.position='relative';p.style.background='#fff';
+  var per=6,grid=pdfRowGrid(per,pageW,pageH,d.margin);
+  var cats=catalogCats(),cat=cats[0],items=(cat&&cat.items)||[];
+  if(!items.length)items=[{id:'preview',name:'ÖRNEK ÜRÜN',photo:'',lines:[
+    {module:'ETAJERLİ MASA',g:300,d:205,y:78,price:300104},
+    {module:'DOLAP',g:285,d:50,y:115,price:209227},
+    {module:'SEHPA',g:90,d:55,y:42,price:111790},
+    {module:'ÜNİTE',g:335,d:20,y:220,price:103859}
+  ]}];
+  var html='';
+  for(var i=0;i<6;i++){
+    var prod=items[i%items.length];
+    var y=d.margin.top+i*(grid.cellH+grid.gap);
+    html+='<div style="position:absolute;left:'+d.margin.left+'px;top:'+y+'px;width:'+grid.cellW+'px;height:'+grid.cellH+'px">'+previewProductBlockRow6(prod,d,grid.cellW,grid.cellH,cat)+'</div>';
+  }
+  p.innerHTML=html;
+}
+function savePdfDesignNow(){
+  readPdfDesigner();
+  state.settings.pdfDesign=JSON.parse(JSON.stringify(pdfDesign()));
+  try{saveToStorage();unsavedChanges=false;refreshSaveBarVisibility();}catch(e){console.error(e);}
+}
+function bindPdfDesigner(){
+  var ids=['pdfFont','pdfNameSize','pdfBodySize','pdfPriceSize','pdfLogoPosition','pdfNameBold','pdfBodyBold','pdfPriceBold'];
+  ids.forEach(function(id){
+    var el=$(id);if(!el)return;
+    ['input','change'].forEach(function(ev){
+      el.addEventListener(ev,function(){
+        readPdfDesigner();
+        renderPdfDesignerPreview();
+        schedulePersist();
+      });
+    });
+  });
+  if($('pdfDesignSaveBtn'))$('pdfDesignSaveBtn').addEventListener('click',function(){savePdfDesignNow();alert('PDF font ve logo ayarları kaydedildi.');});
+  if($('pdfDesignResetBtn'))$('pdfDesignResetBtn').addEventListener('click',function(){
+    var keepLogo=state.settings.logo;
+    state.settings.pdfDesign=defaultPdfDesign();
+    state.settings.logo=keepLogo;
+    loadPdfDesigner();savePdfDesignNow();
+  });
+}
+
 function pdfGrid(per,pageW,pageH,m){
   var cols,rows;
   if(per<=1){cols=1;rows=1;}else if(per===2){cols=2;rows=1;}else if(per<=4){cols=2;rows=2;}else if(per<=6){cols=2;rows=3;}else if(per<=8){cols=2;rows=4;}else if(per<=10){cols=2;rows=5;}else if(per<=12){cols=3;rows=4;}else if(per<=15){cols=3;rows=5;}else if(per<=16){cols=4;rows=4;}else if(per<=20){cols=4;rows=5;}else if(per<=24){cols=4;rows=6;}else{cols=5;rows=Math.ceil(per/5);}
@@ -1585,7 +1685,7 @@ function pdfGrid(per,pageW,pageH,m){
 }
 function pdfRowGrid(per,pageW,pageH,m){var rows=Math.max(1,per),cols=1,gap=4,usableW=pageW-m.left-m.right,usableH=pageH-m.top-m.bottom-2-(rows-1)*gap;return {cols:cols,rows:rows,gap:gap,cellW:usableW,cellH:usableH/rows};}
 function row6Metrics(cellW,cellH){var photoW=Math.min(92,cellW*.33),teamW=Math.min(43,cellW*.155),tableW=cellW-photoW-teamW;return {photoW:photoW,tableW:tableW,teamW:teamW,headH:7,rowH:Math.max(6.5,Math.min(8.5,(cellH-9)/4))};}
-function previewProductBlockRow6(prod,d,cellW,cellH,cat){var m=row6Metrics(cellW,cellH),lines=Array.isArray(prod.lines)&&prod.lines.length?prod.lines:[],html='<div style="position:absolute;inset:0;border:1px solid #111;background:#fff;overflow:hidden;font-family:Arial,sans-serif;color:'+d.textColor+'">';html+='<div style="position:absolute;left:0;top:0;width:'+m.photoW+'px;height:'+m.headH+'px;border-right:1px solid #111;border-bottom:1px solid #111;text-align:center;font-weight:800;font-size:6px;padding-top:1px">'+escapeHtml(String(prod.name||'ÜRÜN').toUpperCase())+'</div>';html+='<div style="position:absolute;left:'+m.photoW+'px;top:0;width:'+m.tableW+'px;height:'+m.headH+'px;border-right:1px solid #111;border-bottom:1px solid #111;text-align:center;font-weight:800;font-size:5.8px;padding-top:1px">MODÜL &nbsp;&nbsp; ÖLÇÜLER (G / D / Y) &nbsp;&nbsp; m³ &nbsp; kg &nbsp; BİRİM FİYATI</div>';html+='<div style="position:absolute;left:'+(m.photoW+m.tableW)+'px;top:0;width:'+m.teamW+'px;height:100%;text-align:center;font-weight:800;font-size:6px;padding-top:2px">TAKIM<br><span style="font-size:8px">'+pdfMoney(productTotal(prod))+'</span></div>';html+='<div style="position:absolute;left:0;top:'+m.headH+'px;width:'+m.photoW+'px;height:'+(cellH-m.headH)+'px;border-right:1px solid #111;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa">'+(prod.photo?'<img src="'+prod.photo+'" style="width:100%;height:100%;object-fit:contain">':'GÖRSEL')+'</div>';var bodyX=m.photoW,bodyW=m.tableW,rh=m.rowH;lines.slice(0,4).forEach(function(l,i){var y=m.headH+i*rh,vol=(Number(l.g)&&Number(l.d)&&Number(l.y))?((Number(l.g)*Number(l.d)*Number(l.y))/1000000).toFixed(2):'-';html+='<div style="position:absolute;left:'+bodyX+'px;top:'+y+'px;width:'+bodyW+'px;height:'+rh+'px;border-bottom:1px solid #aaa;display:grid;grid-template-columns:31% 11% 11% 11% 10% 9% 17%;font-size:5.8px;line-height:'+rh+'px">';[l.module||l.size||'-',l.g||'-',l.d||'-',l.y||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)].forEach(function(v,j){html+='<span style="border-right:1px solid #ccc;text-align:'+(j===0?'left':j===6?'right':'center')+';padding:0 2px;overflow:hidden;white-space:nowrap">'+escapeHtml(String(v))+'</span>';});html+='</div>';});return html+'</div>';}
+function previewProductBlockRow6(prod,d,cellW,cellH,cat){var m=row6Metrics(cellW,cellH),lines=Array.isArray(prod.lines)&&prod.lines.length?prod.lines:[],html='<div style="position:absolute;inset:0;border:1px solid #111;background:#fff;overflow:hidden;font-family:Arial,sans-serif;color:'+d.textColor+'">';html+='<div style="position:absolute;left:0;top:0;width:'+m.photoW+'px;height:'+m.headH+'px;border-right:1px solid #111;border-bottom:1px solid #111;text-align:center;font-weight:'+(d.nameBold===false?'400':'800')+';font-size:6px;padding-top:1px">'+escapeHtml(String(prod.name||'ÜRÜN').toUpperCase())+'</div>';html+='<div style="position:absolute;left:'+m.photoW+'px;top:0;width:'+m.tableW+'px;height:'+m.headH+'px;border-right:1px solid #111;border-bottom:1px solid #111;text-align:center;font-weight:800;font-size:5.8px;padding-top:1px">MODÜL &nbsp;&nbsp; ÖLÇÜLER (G / D / Y) &nbsp;&nbsp; m³ &nbsp; kg &nbsp; BİRİM FİYATI</div>';html+='<div style="position:absolute;left:'+(m.photoW+m.tableW)+'px;top:0;width:'+m.teamW+'px;height:100%;text-align:center;font-weight:'+(d.priceBold===false?'400':'800')+';font-size:6px;padding-top:2px">TAKIM<br><span style="font-size:8px">'+pdfMoney(productTotal(prod))+'</span></div>';html+='<div style="position:absolute;left:0;top:'+m.headH+'px;width:'+m.photoW+'px;height:'+(cellH-m.headH)+'px;border-right:1px solid #111;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fafafa">'+(prod.photo?'<img src="'+prod.photo+'" style="width:100%;height:100%;object-fit:contain">':'GÖRSEL')+'</div>';var bodyX=m.photoW,bodyW=m.tableW,rh=m.rowH;lines.slice(0,4).forEach(function(l,i){var y=m.headH+i*rh,vol=(Number(l.g)&&Number(l.d)&&Number(l.y))?((Number(l.g)*Number(l.d)*Number(l.y))/1000000).toFixed(2):'-';html+='<div style="position:absolute;left:'+bodyX+'px;top:'+y+'px;width:'+bodyW+'px;height:'+rh+'px;border-bottom:1px solid #aaa;display:grid;grid-template-columns:31% 11% 11% 11% 10% 9% 17%;font-size:5.8px;font-weight:'+(d.bodyBold?'700':'400')+';line-height:'+rh+'px">';[l.module||l.size||'-',l.g||'-',l.d||'-',l.y||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)].forEach(function(v,j){html+='<span style="border-right:1px solid #ccc;text-align:'+(j===0?'left':j===6?'right':'center')+';padding:0 2px;overflow:hidden;white-space:nowrap">'+escapeHtml(String(v))+'</span>';});html+='</div>';});return html+'</div>';}
 function previewProductBlock(prod,d,cellW,cellH,cat){
   var scale=Math.min(1,cellW/135,cellH/125),sx=scale,sy=scale,html='<div style="position:absolute;inset:0;border:1px solid #b8b8b8;border-radius:5px;background:#fff;overflow:hidden;font-family:Arial,sans-serif;color:'+d.textColor+'">';
   if(d.showCategoryHeader)html+='<div style="position:absolute;left:0;top:0;width:100%;height:'+Math.max(7,8*sy)+'px;background:'+d.headerColor+';color:#fff;text-align:center;font-weight:700;font-size:'+Math.max(3.5,5.5*sy)+'px;padding-top:1px">'+escapeHtml(cat?cat.cat.tr:'FİYAT LİSTESİ')+'</div>';
@@ -1622,12 +1722,7 @@ function renderPdfDesignerPreview(){
   p.innerHTML=html;
 }
 function savePdfDesignNow(){readPdfDesigner(true);state.settings.pdfDesign=JSON.parse(JSON.stringify(pdfDesign()));try{saveToStorage();unsavedChanges=false;refreshSaveBarVisibility();}catch(e){console.error(e);}}
-function bindPdfDesigner(){document.querySelectorAll('.pdf-template-card').forEach(function(card){card.addEventListener('click',function(){applyPdfTemplate(card.dataset.template);});});var ids=['pdfDesignFormat','pdfDesignOrientation','pdfMTop','pdfMRight','pdfMBottom','pdfMLeft','pdfTitleX','pdfTitleY','pdfTitleW','pdfTitleSize','pdfPhotoX','pdfPhotoY','pdfPhotoW','pdfPhotoH','pdfTableX','pdfTableY','pdfTableW','pdfRowH','pdfTeamX','pdfTeamW','pdfNameSize','pdfBodySize','pdfPriceSize','pdfFooterSize','pdfFont','pdfBorderWidth','pdfHeaderColor','pdfTextColor','pdfItemsPerPage','pdfShowLogo','pdfShowCategoryHeader','pdfShowFooter'];ids.forEach(function(id){var el=$(id);if(!el)return;['input','change'].forEach(function(ev){el.addEventListener(ev,function(){readPdfDesigner(true);renderPdfDesignerPreview();schedulePersist();});});});if($('pdfDesignPreviewBtn'))$('pdfDesignPreviewBtn').addEventListener('click',function(){readPdfDesigner(true);renderPdfDesignerPreview();});if($('pdfDesignSaveBtn'))$('pdfDesignSaveBtn').addEventListener('click',function(){savePdfDesignNow();alert('PDF tasarımı kaydedildi ve anında aktif edildi.');});if($('pdfDesignResetBtn'))$('pdfDesignResetBtn').addEventListener('click',function(){state.settings.pdfDesign=defaultPdfDesign();loadPdfDesigner();savePdfDesignNow();});
-if($('pdfDesignProBtn'))$('pdfDesignProBtn').addEventListener('click',function(){
-  applyPdfTemplate('luxury');
-  alert("A3 Dikey 6'lı profesyonel tasarım uygulandı ve kaydedildi.");
-});}
-async function drawCatalogProductRow6(doc,p,x,y,w,h){var d=pdfDesign(),img=await pdfImageData(p.photo),team=productTotal(p),lines=Array.isArray(p.lines)&&p.lines.length?p.lines:[],m=row6Metrics(w,h),photoW=m.photoW,tableW=m.tableW,teamW=m.teamW,headH=m.headH,rowH=m.rowH;doc.setDrawColor(20,20,20);doc.setLineWidth(d.borderWidth||.35);doc.setFillColor(255,255,255);doc.rect(x,y,w,h,'FD');doc.setFont(d.font,'bold');doc.setFontSize(Math.max(7,d.nameSize));doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.text(pdfSafeText(String(p.name||'URUN').toUpperCase()),x+photoW/2,y+5,{align:'center',maxWidth:photoW-2});doc.setFontSize(Math.max(5.5,d.bodySize));doc.text('MODÜL',x+photoW+tableW*.14,y+4.8,{align:'center'});doc.text('ÖLÇÜLER',x+photoW+tableW*.40,y+3.2,{align:'center'});doc.setFontSize(4);doc.text('G / D / Y',x+photoW+tableW*.40,y+6.1,{align:'center'});doc.setFontSize(Math.max(5,d.bodySize));doc.text('m³',x+photoW+tableW*.67,y+4.8,{align:'center'});doc.text('kg',x+photoW+tableW*.76,y+4.8,{align:'center'});doc.text('BİRİM FİYATI',x+photoW+tableW*.90,y+4.8,{align:'center',maxWidth:tableW*.18});pdfFitImage(doc,img,x+1,y+headH+1,photoW-2,h-headH-2);var cols=[tableW*.31,tableW*.11,tableW*.11,tableW*.11,tableW*.10,tableW*.09,tableW*.17],cx=x+photoW;doc.setFont(d.font,'normal');doc.setFontSize(Math.max(4.5,d.bodySize));for(var i=0;i<Math.min(4,lines.length);i++){var l=lines[i],yy=y+headH+i*rowH,g=Number(l.g)||0,dd=Number(l.d)||0,hh=Number(l.y)||0,vol=(g&&dd&&hh)?(g*dd*hh/1000000).toFixed(2):'-';doc.setDrawColor(175,175,175);doc.rect(cx,yy,tableW,rowH);var vals=[l.module||l.size||'-',g||'-',dd||'-',hh||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)],xx=cx;vals.forEach(function(v,j){if(j)doc.line(xx,yy,xx,yy+rowH);var al=j===0?'left':j===6?'right':'center';doc.text(pdfSafeText(String(v)),al==='left'?xx+1.1:al==='right'?xx+cols[j]-1.1:xx+cols[j]/2,yy+rowH*.68,{align:al,maxWidth:Math.max(4,cols[j]-2)});xx+=cols[j];});}doc.setDrawColor(20,20,20);doc.rect(x+photoW,y,tableW,headH+Math.min(4,lines.length)*rowH);doc.rect(x+photoW+tableW,y,teamW,h);doc.setFont(d.font,'bold');doc.setFontSize(6);doc.text('TAKIM',x+photoW+tableW+teamW/2,y+headH+8,{align:'center'});doc.setFontSize(Math.max(8,d.priceSize));doc.text(pdfMoney(team),x+photoW+tableW+teamW/2,y+headH+17,{align:'center',maxWidth:teamW-2});}
+async function drawCatalogProductRow6(doc,p,x,y,w,h){var d=pdfDesign(),img=await pdfImageData(p.photo),team=productTotal(p),lines=Array.isArray(p.lines)&&p.lines.length?p.lines:[],m=row6Metrics(w,h),photoW=m.photoW,tableW=m.tableW,teamW=m.teamW,headH=m.headH,rowH=m.rowH;doc.setDrawColor(20,20,20);doc.setLineWidth(d.borderWidth||.35);doc.setFillColor(255,255,255);doc.rect(x,y,w,h,'FD');doc.setFont(d.font,d.nameBold===false?'normal':'bold');doc.setFontSize(Math.max(7,d.nameSize));doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.text(pdfSafeText(String(p.name||'URUN').toUpperCase()),x+photoW/2,y+5,{align:'center',maxWidth:photoW-2});doc.setFontSize(Math.max(5.5,d.bodySize));doc.text('MODÜL',x+photoW+tableW*.14,y+4.8,{align:'center'});doc.text('ÖLÇÜLER',x+photoW+tableW*.40,y+3.2,{align:'center'});doc.setFontSize(4);doc.text('G / D / Y',x+photoW+tableW*.40,y+6.1,{align:'center'});doc.setFontSize(Math.max(5,d.bodySize));doc.text('m³',x+photoW+tableW*.67,y+4.8,{align:'center'});doc.text('kg',x+photoW+tableW*.76,y+4.8,{align:'center'});doc.text('BİRİM FİYATI',x+photoW+tableW*.90,y+4.8,{align:'center',maxWidth:tableW*.18});pdfFitImage(doc,img,x+1,y+headH+1,photoW-2,h-headH-2);var cols=[tableW*.31,tableW*.11,tableW*.11,tableW*.11,tableW*.10,tableW*.09,tableW*.17],cx=x+photoW;doc.setFont(d.font,d.bodyBold?'bold':'normal');doc.setFontSize(Math.max(4.5,d.bodySize));for(var i=0;i<Math.min(4,lines.length);i++){var l=lines[i],yy=y+headH+i*rowH,g=Number(l.g)||0,dd=Number(l.d)||0,hh=Number(l.y)||0,vol=(g&&dd&&hh)?(g*dd*hh/1000000).toFixed(2):'-';doc.setDrawColor(175,175,175);doc.rect(cx,yy,tableW,rowH);var vals=[l.module||l.size||'-',g||'-',dd||'-',hh||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)],xx=cx;vals.forEach(function(v,j){if(j)doc.line(xx,yy,xx,yy+rowH);var al=j===0?'left':j===6?'right':'center';doc.text(pdfSafeText(String(v)),al==='left'?xx+1.1:al==='right'?xx+cols[j]-1.1:xx+cols[j]/2,yy+rowH*.68,{align:al,maxWidth:Math.max(4,cols[j]-2)});xx+=cols[j];});}doc.setDrawColor(20,20,20);doc.rect(x+photoW,y,tableW,headH+Math.min(4,lines.length)*rowH);doc.rect(x+photoW+tableW,y,teamW,h);doc.setFont(d.font,d.priceBold===false?'normal':'bold');doc.setFontSize(6);doc.text('TAKIM',x+photoW+tableW+teamW/2,y+headH+8,{align:'center'});doc.setFontSize(Math.max(8,d.priceSize));doc.text(pdfMoney(team),x+photoW+tableW+teamW/2,y+headH+17,{align:'center',maxWidth:teamW-2});}
 async function drawCatalogProduct(doc,p,x,y,w,h){
   var d=pdfDesign(); if(d.layout==='row6') return await drawCatalogProductRow6(doc,p,x,y,w,h);
   var img=await pdfImageData(p.photo),team=productTotal(p),lines=Array.isArray(p.lines)?p.lines:[],scale=Math.min(1,w/135,h/125),ox=x,oy=y,sx=scale,sy=scale;
@@ -1681,7 +1776,7 @@ async function exportCatalogPdf(){
       doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-55,120,110,48);
       doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(31);doc.text(pdfSafeText(state.lang==='tr'?cat.cat.tr:cat.cat.en),W/2,220,{align:'center',maxWidth:240});doc.setDrawColor(170,140,80);doc.line(100,232,197,232);
     }
-    var per=Math.max(1,Math.min(30,parseInt(d.itemsPerPage,10)||6)); var grid=d.layout==='row6'?pdfRowGrid(per,W,H,d.margin):pdfGrid(per,W,H,d.margin); for(var i=0;i<cat.items.length;i+=per){ doc.addPage();pageCount++; if(d.layout!=='row6') pdfHeader(doc,state.lang==='tr'?cat.cat.tr:cat.cat.en,'OFISCHI FIYAT LISTESI',logo,W); for(var k=0;k<per&&i+k<cat.items.length;k++){ var gc=k%grid.cols,gr=Math.floor(k/grid.cols),gx=d.margin.left+gc*(grid.cellW+grid.gap),gy=d.margin.top+(d.layout==='row6'?0:27)+gr*(grid.cellH+grid.gap); await drawCatalogProduct(doc,cat.items[i+k],gx,gy,grid.cellW,grid.cellH); } }
+    var per=Math.max(1,Math.min(30,parseInt(d.itemsPerPage,10)||6)); var grid=d.layout==='row6'?pdfRowGrid(per,W,H,d.margin):pdfGrid(per,W,H,d.margin); for(var i=0;i<cat.items.length;i+=per){ doc.addPage();pageCount++; if(d.layout!=='row6') pdfHeader(doc,state.lang==='tr'?cat.cat.tr:cat.cat.en,'OFISCHI FIYAT LISTESI',logo,W); else if(d.showLogo&&logo){var lw=32, lx=d.logoPosition==='center'?(W-lw)/2:d.logoPosition==='right'?W-d.margin.right-lw:d.margin.left; pdfFitImage(doc,logo,lx,2,lw,8);} for(var k=0;k<per&&i+k<cat.items.length;k++){ var gc=k%grid.cols,gr=Math.floor(k/grid.cols),gx=d.margin.left+gc*(grid.cellW+grid.gap),gy=d.margin.top+(d.layout==='row6'?0:27)+gr*(grid.cellH+grid.gap); await drawCatalogProduct(doc,cat.items[i+k],gx,gy,grid.cellW,grid.cellH); } }
   }
   var total=doc.getNumberOfPages();for(var pg=1;pg<=total;pg++){doc.setPage(pg);if(pg>1)pdfFooter(doc,W,H,pg,total);}
   doc.save('ofischi-fiyat-listesi-'+new Date().toISOString().slice(0,10)+'.pdf');
