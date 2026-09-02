@@ -1106,7 +1106,7 @@ function svgPlaceholder(label,color){
 var state = {
   lang:'tr',
   currency:'TRY',
-  pin:'1234',
+  pinHash:'03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4',
   rates:{ USD:34.5, EUR:37.2 },
   settings:{
     bg:'#0a0a0b', accent:'#d4af6a', text:'#f3efe4', card:'#161410', chip:'#1a1712',
@@ -1223,10 +1223,6 @@ function productTotal(p){
 
 /* ============ COMPATIBILITY / SAMPLE DATA ============ */
 function fmtDate(v){if(!v)return '-';var d=new Date(v+'T00:00:00');return d.toLocaleDateString('tr-TR');}
-function quoteProductMeasure(p){
-  var lines=(p.lines||[]).map(function(l){var m=l.module||l.size||'';var dims=(l.g||l.d||l.y)?[l.g||'',l.d||'',l.y||''].filter(Boolean).join(' × ')+' cm':(l.dimensions||'');return m+(dims?' / '+dims:'');}).filter(Boolean);return lines.join(' | ')||'-';
-}
-
 function quoteProductMeasure(p){
   var lines=(p.lines||[]).map(function(l){var m=l.module||l.size||'';var dims=(l.g||l.d||l.y)?[l.g||'',l.d||'',l.y||''].filter(Boolean).join(' × ')+' cm':(l.dimensions||'');return m+(dims?' / '+dims:'');}).filter(Boolean);return lines.join(' | ')||'-';
 }
@@ -1682,11 +1678,15 @@ function hexRgb(hex){
   return [isNaN(n)?40:(n>>16)&255,isNaN(n)?40:(n>>8)&255,isNaN(n)?40:n&255];
 }
 function pdfMoney(v){return fmt(Number(v)||0);}
-function pdfSafeText(v){
-  return String(v==null?'':v)
-    .replace(/İ/g,'I').replace(/ı/g,'i').replace(/Ş/g,'S').replace(/ş/g,'s')
-    .replace(/Ğ/g,'G').replace(/ğ/g,'g').replace(/Ü/g,'U').replace(/ü/g,'u')
-    .replace(/Ö/g,'O').replace(/ö/g,'o').replace(/Ç/g,'C').replace(/ç/g,'c');
+function pdfSafeText(v){return String(v==null?'':v);}
+function pdfSetFont(doc,weight){
+  try{
+    if(doc && doc.getFontList && doc.getFontList()['NotoSans']) {
+      doc.setFont('NotoSans', weight==='bold'?'bold':'normal');
+      return;
+    }
+  }catch(e){}
+  doc.setFont('helvetica',weight==='bold'?'bold':'normal');
 }
 function pdfText(doc,text,x,y,maxW,size,style){
   doc.setFont('helvetica',style||'normal');doc.setFontSize(size||9);
@@ -1719,14 +1719,14 @@ function pdfFitImage(doc,img,x,y,w,h){
 }
 function pdfHeader(doc,title,subtitle,logoImg,pageW){
   var m=14;doc.setFillColor(28,25,21);doc.rect(0,0,pageW,27,'F');
-  if(logoImg)pdfFitImage(doc,logoImg,m,5,52,17);else{doc.setTextColor(230,210,170);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('OFISCHI',m,17);}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(pdfSafeText(title),pageW/2,17,{align:'center'});
-  if(subtitle){doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(210,205,195);doc.text(pdfSafeText(subtitle),pageW-m,17,{align:'right'});}
+  if(logoImg)pdfFitImage(doc,logoImg,m,5,52,17);else{doc.setTextColor(230,210,170);pdfSetFont(doc,'bold');doc.setFontSize(15);doc.text('OFISCHI',m,17);}
+  doc.setTextColor(255,255,255);pdfSetFont(doc,'bold');doc.setFontSize(15);doc.text(pdfSafeText(title),pageW/2,17,{align:'center'});
+  if(subtitle){pdfSetFont(doc,'normal');doc.setFontSize(6.5);doc.setTextColor(210,205,195);doc.text(pdfSafeText(subtitle),pageW-m,17,{align:'right'});}
   doc.setTextColor(25,25,25);
 }
 function pdfFooter(doc,pageW,pageH,pageNo,totalPages){
   var m=14;doc.setDrawColor(205,205,205);doc.setLineWidth(.3);doc.line(m,pageH-11,pageW-m,pageH-11);
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,100,100);
+  pdfSetFont(doc,'normal');doc.setFontSize(7);doc.setTextColor(100,100,100);
   doc.text(pdfSafeText(state.settings.companyInfo||'OFISCHI Büro Mobilyalari'),m,pageH-6);
   doc.text('Sayfa '+pageNo+' / '+totalPages,pageW-m,pageH-6,{align:'right'});doc.setTextColor(25,25,25);
 }
@@ -1943,13 +1943,13 @@ async function drawCatalogProductRow6(doc,p,x,y,w,h){
   pdfFitImage(doc,img,x+1,y+headH+1,photoW-2,h-headH-2);
   var cols=[tableW*.31,tableW*.11,tableW*.11,tableW*.11,tableW*.10,tableW*.10,tableW*.17],cx=tx;
   doc.setFont(d.font,d.bodyBold?'bold':'normal');doc.setFontSize(Math.max(4.8,d.bodySize));
-  for(var i=0;i<Math.min(4,lines.length);i++){
+  for(var i=0;i<lines.length;i++){
     var l=lines[i],yy=y+headH+i*rowH,g=Number(l.g)||0,dd=Number(l.d)||0,hh=Number(l.y)||0,vol=(g&&dd&&hh)?(g*dd*hh/1000000).toFixed(2):'-';
     doc.setDrawColor(175,175,175);doc.rect(cx,yy,tableW,rowH);
     var vals=[l.module||l.size||'-',g||'-',dd||'-',hh||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)],xx=cx;
     vals.forEach(function(v,j){if(j)doc.line(xx,yy,xx,yy+rowH);var al=j===0?'left':j===6?'right':'center';doc.text(pdfSafeText(String(v)),al==='left'?xx+1.2:al==='right'?xx+cols[j]-1.2:xx+cols[j]/2,yy+rowH*.68,{align:al,maxWidth:Math.max(4,cols[j]-2)});xx+=cols[j];});
   }
-  doc.setDrawColor(20,20,20);doc.rect(x+photoW,y,tableW,headH+Math.min(4,lines.length)*rowH);doc.rect(x+photoW+tableW,y,teamW,h);
+  doc.setDrawColor(20,20,20);doc.rect(x+photoW,y,tableW,headH+lines.length*rowH);doc.rect(x+photoW+tableW,y,teamW,h);
   doc.setFont(d.font,d.priceBold===false?'normal':'bold');doc.setFontSize(6);doc.text('TAKIM',x+photoW+tableW+teamW/2,y+h/2-2,{align:'center'});
   doc.setFontSize(Math.max(8,d.priceSize));doc.text(pdfMoney(team),x+photoW+tableW+teamW/2,y+h/2+7,{align:'center',maxWidth:teamW-2});
 }
@@ -1995,8 +1995,8 @@ async function exportCatalogPdf(){
   var base=(format==='a4'?{portrait:[210,297],landscape:[297,210]}:{portrait:[297,420],landscape:[420,297]})[orientation]||[297,420],W=base[0],H=base[1],m=Math.max(d.margin.left,d.margin.right,d.margin.top,d.margin.bottom),cats=catalogCats(),pageCount=1,logo=await pdfImageData(state.settings.logo),cover=await pdfImageData(state.settings.catalogCover);
   if(cover)pdfFitImage(doc,cover,0,0,W,H);else{
     doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-65,90,130,60);
-    doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(34);doc.text('FIYAT LISTESI',W/2,190,{align:'center'});
-    doc.setDrawColor(170,140,80);doc.setLineWidth(1);doc.line(90,200,207,200);doc.setFont('helvetica','normal');doc.setFontSize(12);doc.text(pdfSafeText(state.settings.companyInfo||''),W/2,217,{align:'center',maxWidth:220});
+    doc.setTextColor(35,32,28);pdfSetFont(doc,'bold');doc.setFontSize(34);doc.text('FIYAT LISTESI',W/2,190,{align:'center'});
+    doc.setDrawColor(170,140,80);doc.setLineWidth(1);doc.line(90,200,207,200);pdfSetFont(doc,'normal');doc.setFontSize(12);doc.text(pdfSafeText(state.settings.companyInfo||''),W/2,217,{align:'center',maxWidth:220});
     doc.setFontSize(9);doc.setTextColor(110,110,110);doc.text(new Date().toLocaleDateString('tr-TR'),W/2,235,{align:'center'});
   }
   for(var ci=0;ci<cats.length;ci++){
@@ -2004,7 +2004,7 @@ async function exportCatalogPdf(){
     var catCover=await pdfImageData(cat.cat.cover);
     if(catCover)pdfFitImage(doc,catCover,0,0,W,H);else{
       doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-55,120,110,48);
-      doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(31);doc.text(pdfSafeText(state.lang==='tr'?cat.cat.tr:cat.cat.en),W/2,220,{align:'center',maxWidth:240});doc.setDrawColor(170,140,80);doc.line(100,232,197,232);
+      doc.setTextColor(35,32,28);pdfSetFont(doc,'bold');doc.setFontSize(31);doc.text(pdfSafeText(state.lang==='tr'?cat.cat.tr:cat.cat.en),W/2,220,{align:'center',maxWidth:240});doc.setDrawColor(170,140,80);doc.line(100,232,197,232);
     }
     var per=Math.max(1,Math.min(30,parseInt(d.itemsPerPage,10)||6)); var grid=d.layout==='row6'?pdfRowGrid(per,W,H,d.margin):pdfGrid(per,W,H,d.margin); for(var i=0;i<cat.items.length;i+=per){ doc.addPage();pageCount++; if(d.layout!=='row6') pdfHeader(doc,state.lang==='tr'?cat.cat.tr:cat.cat.en,'OFISCHI FIYAT LISTESI',logo,W); else if(d.showLogo&&logo){var lw=32, lx=d.logoPosition==='center'?(W-lw)/2:d.logoPosition==='right'?W-d.margin.right-lw:d.margin.left; pdfFitImage(doc,logo,lx,2,lw,8);} for(var k=0;k<per&&i+k<cat.items.length;k++){ var gc=k%grid.cols,gr=Math.floor(k/grid.cols),gx=d.margin.left+gc*(grid.cellW+grid.gap),gy=d.margin.top+(d.layout==='row6'?0:27)+gr*(grid.cellH+grid.gap); await drawCatalogProduct(doc,cat.items[i+k],gx,gy,grid.cellW,grid.cellH); } }
   }
@@ -2013,7 +2013,7 @@ async function exportCatalogPdf(){
 }
 $('pdfBtn').addEventListener('click',function(){
   var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';self.textContent='PDF HAZIRLANIYOR...';
-  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF oluşturulamadı.\n\n'+(e&&e.message?e.message:e));}).finally(function(){self.dataset.busy='0';self.textContent='PDF';});
+  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF oluşturulamadı.\n\n'+(e&&e.message?e.message:e));}).finally(function(){self.dataset.busy='0';var lbl=self.querySelector('.pdf-btn-label');if(lbl)lbl.textContent='PDF';else self.setAttribute('aria-label','PDF');;});
 });
 function quoteCalc(){
   var entries=getQuoteEntries(),sub=entries.reduce(function(s,e){return s+productTotal(e.p)*e.quantity;},0),meta=state.quoteMeta||{};
@@ -2022,15 +2022,15 @@ function quoteCalc(){
 }
 async function exportQuotePdf(){
   var jsPDF=window.jspdf.jsPDF,doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),W=210,H=297,m=12,calc=quoteCalc(),logo=await pdfImageData(state.settings.logo),meta=state.quoteMeta||{};
-  function header(){pdfHeader(doc,'TEKLIF','OFISCHI',logo,W);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(90,90,90);doc.text(pdfSafeText(state.settings.companyInfo||''),W-m,35,{align:'right',maxWidth:115});doc.text('Tarih: '+pdfSafeText(fmtDate(meta.date)),W-m,42,{align:'right'});doc.setTextColor(25,25,25);}
-  function customer(y){doc.setFillColor(247,247,245);doc.roundedRect(m,y,W-2*m,27,3,3,'F');doc.setTextColor(125,95,45);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('MUSTERI / FIRMA',m+5,y+7);doc.text('TEKLIF TARIHI',m+105,y+7);doc.setTextColor(25,25,25);doc.setFontSize(10);doc.text(pdfSafeText(meta.customer||'-'),m+5,y+15,{maxWidth:90});doc.setFontSize(8);doc.setTextColor(85,85,85);doc.text(pdfSafeText(meta.phone||''),m+5,y+22);doc.text(pdfSafeText(fmtDate(meta.date)),m+105,y+15);doc.text('TESLIM: '+pdfSafeText(fmtDate(meta.deliveryDate)),m+105,y+22);doc.setTextColor(25,25,25);}
-  function tableHead(y){doc.setFillColor(40,40,40);doc.rect(m,y,W-2*m,9,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6.5);[['GORSEL',m+17],['URUN / OLCU',m+43],['RENK',m+103],['ADET',m+124],['BIRIM',m+151],['TOPLAM',W-m-2]].forEach(function(a,i){doc.text(a[0],a[1],y+6,{align:i===5?'right':'left'});});doc.setTextColor(25,25,25);}
-  function productRow(e,y){var p=e.p,img=pdfImageData(p.photo);return img.then(function(im){var h=32;doc.setDrawColor(220,220,220);doc.rect(m,y,W-2*m,h);pdfFitImage(doc,im,m+3,y+3,29,26);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(pdfSafeText(p.name||'-'),m+34,y+9,{maxWidth:55});doc.setFont('helvetica','normal');doc.setFontSize(5.8);doc.setTextColor(100,100,100);doc.text(pdfSafeText(quoteProductMeasure(p)),m+34,y+16,{maxWidth:55});doc.text(pdfSafeText(p.color||'-'),m+91,y+11,{maxWidth:27});doc.text(String(e.quantity),m+117,y+11,{align:'center'});doc.text(pdfMoney(productTotal(p)),m+143,y+11,{align:'right'});doc.setFont('helvetica','bold');doc.text(pdfMoney(productTotal(p)*e.quantity),W-m-2,y+11,{align:'right'});doc.setTextColor(25,25,25);return h;});}
+  function header(){pdfHeader(doc,'TEKLIF','OFISCHI',logo,W);pdfSetFont(doc,'normal');doc.setFontSize(7);doc.setTextColor(90,90,90);doc.text(pdfSafeText(state.settings.companyInfo||''),W-m,35,{align:'right',maxWidth:115});doc.text('Tarih: '+pdfSafeText(fmtDate(meta.date)),W-m,42,{align:'right'});doc.setTextColor(25,25,25);}
+  function customer(y){doc.setFillColor(247,247,245);doc.roundedRect(m,y,W-2*m,27,3,3,'F');doc.setTextColor(125,95,45);pdfSetFont(doc,'bold');doc.setFontSize(7);doc.text('MUSTERI / FIRMA',m+5,y+7);doc.text('TEKLIF TARIHI',m+105,y+7);doc.setTextColor(25,25,25);doc.setFontSize(10);doc.text(pdfSafeText(meta.customer||'-'),m+5,y+15,{maxWidth:90});doc.setFontSize(8);doc.setTextColor(85,85,85);doc.text(pdfSafeText(meta.phone||''),m+5,y+22);doc.text(pdfSafeText(fmtDate(meta.date)),m+105,y+15);doc.text('TESLIM: '+pdfSafeText(fmtDate(meta.deliveryDate)),m+105,y+22);doc.setTextColor(25,25,25);}
+  function tableHead(y){doc.setFillColor(40,40,40);doc.rect(m,y,W-2*m,9,'F');doc.setTextColor(255,255,255);pdfSetFont(doc,'bold');doc.setFontSize(6.5);[['GORSEL',m+17],['URUN / OLCU',m+43],['RENK',m+103],['ADET',m+124],['BIRIM',m+151],['TOPLAM',W-m-2]].forEach(function(a,i){doc.text(a[0],a[1],y+6,{align:i===5?'right':'left'});});doc.setTextColor(25,25,25);}
+  function productRow(e,y){var p=e.p,img=pdfImageData(p.photo);return img.then(function(im){var h=32;doc.setDrawColor(220,220,220);doc.rect(m,y,W-2*m,h);pdfFitImage(doc,im,m+3,y+3,29,26);pdfSetFont(doc,'bold');doc.setFontSize(7);doc.text(pdfSafeText(p.name||'-'),m+34,y+9,{maxWidth:55});pdfSetFont(doc,'normal');doc.setFontSize(5.8);doc.setTextColor(100,100,100);doc.text(pdfSafeText(quoteProductMeasure(p)),m+34,y+16,{maxWidth:55});doc.text(pdfSafeText(p.color||'-'),m+91,y+11,{maxWidth:27});doc.text(String(e.quantity),m+117,y+11,{align:'center'});doc.text(pdfMoney(productTotal(p)),m+143,y+11,{align:'right'});pdfSetFont(doc,'bold');doc.text(pdfMoney(productTotal(p)*e.quantity),W-m-2,y+11,{align:'right'});doc.setTextColor(25,25,25);return h;});}
   header();customer(49);var y=84;tableHead(y);y+=9;
   for(var i=0;i<calc.entries.length;i++){if(y>H-65){doc.addPage();header();y=49;tableHead(y);y+=9;}y+=await productRow(calc.entries[i],y);}
-  var bx=W-m-78;doc.setDrawColor(210,210,210);doc.line(bx,y+3,W-m,y+3);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  var bx=W-m-78;doc.setDrawColor(210,210,210);doc.line(bx,y+3,W-m,y+3);pdfSetFont(doc,'normal');doc.setFontSize(8);
   function sumRow(label,val,yy,bold){doc.setFont('helvetica',bold?'bold':'normal');doc.text(label,bx,yy);doc.text(pdfMoney(val),W-m,yy,{align:'right'});}
-  sumRow('ARA TOPLAM',calc.sub,y+12,false);sumRow('ISKONTO %'+calc.pct,calc.disc,y+21,false);sumRow('KDV %'+calc.vatRate,calc.vat,y+30,false);doc.setFillColor(40,40,40);doc.rect(bx,y+35,W-m-bx,13,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('GENEL TOPLAM',bx+4,y+43);doc.text(pdfMoney(calc.grand),W-m-4,y+43,{align:'right'});doc.setTextColor(25,25,25);
+  sumRow('ARA TOPLAM',calc.sub,y+12,false);sumRow('ISKONTO %'+calc.pct,calc.disc,y+21,false);sumRow('KDV %'+calc.vatRate,calc.vat,y+30,false);doc.setFillColor(40,40,40);doc.rect(bx,y+35,W-m-bx,13,'F');doc.setTextColor(255,255,255);pdfSetFont(doc,'bold');doc.setFontSize(9);doc.text('GENEL TOPLAM',bx+4,y+43);doc.text(pdfMoney(calc.grand),W-m-4,y+43,{align:'right'});doc.setTextColor(25,25,25);
   doc.setFontSize(7);doc.setTextColor(125,95,45);doc.text('ODEME SARTLARI',m,y+61);doc.text('ACIKLAMA / NOT',m+98,y+61);doc.setTextColor(70,70,70);pdfText(doc,state.settings.paymentTerms||'-',m,y+68,85,7);pdfText(doc,meta.note||'-',m+98,y+68,88,7);
   pdfFooter(doc,W,H,doc.getNumberOfPages(),doc.getNumberOfPages());doc.save('ofischi-teklif-'+new Date().toISOString().slice(0,10)+'.pdf');
 }
@@ -2050,21 +2050,41 @@ function normalizeState(){
     if(!p.catId||!state.categories.some(function(c){return c.id===p.catId;}))p.catId=state.categories[0]?state.categories[0].id:null;
     p.name=String(p.name||'İsimsiz Ürün'); p.en=String(p.en||p.name); p.color=typeof p.color==='string'?p.color:''; p.photo=typeof p.photo==='string'&&p.photo?p.photo:svgPlaceholder(p.name.slice(0,8),'#241d12');
     if(!Array.isArray(p.lines)){ if(p.size||p.dimensions||p.price)p.lines=[{module:String(p.size||'Ürün'),size:String(p.size||'Ürün'),g:'',d:'',y:'',dimensions:String(p.dimensions||''),price:Number(p.price)||0}]; else p.lines=[]; }
-    p.lines=p.lines.filter(function(l){return l&&typeof l==='object';}).map(function(l){var module=String(l.module||l.size||'');var g=String(l.g==null?'':l.g),d=String(l.d==null?'':l.d),y=String(l.y==null?'':l.y);return {module:module,size:module,g:g,d:d,y:y,dimensions:[g,d,y].filter(Boolean).join(' × ')||String(l.dimensions||''),price:Number(l.price)||0,weight:Number(l.weight)||0};});
+    p.lines=p.lines.filter(function(l){return l&&typeof l==='object';}).map(function(l){var module=String(l.module||l.size||'');var g=String(l.g==null?'':l.g),d=String(l.d==null?'':l.d),y=String(l.y==null?'':l.y);return {module:module,size:module,g:g,d:d,y:y,dimensions:[g,d,y].filter(Boolean).join(' × ')||String(l.dimensions||''),description:String(l.description||l.desc||''),price:Number(l.price)||0,weight:Number(l.weight)||0};});
     return p;
   });
   if(!/^\d{4,8}$/.test(String(state.pin||'')))state.pin='1234';
   if(!state.currentCat||!state.categories.some(function(c){return c.id===state.currentCat;}))state.currentCat=state.categories[0]?state.categories[0].id:null;
   state.cloud=Object.assign({url:'',key:''},state.cloud||{});
-  state.quoteItems=(Array.isArray(state.quoteItems)?state.quoteItems:[]).map(function(x){var e=typeof x==='string'?{productId:x,quantity:1}:x;return e&&e.productId?{productId:String(e.productId),quantity:Math.max(1,parseInt(e.quantity,10)||1)}:null;}).filter(function(x){return x&&state.products.some(function(p){return p.id===x.productId;});});
+  state.quoteItems=(Array.isArray(state.quoteItems)?state.quoteItems:[]).map(function(x){
+  var e=typeof x==='string'?{productId:x,quantity:1}:x;
+  if(!e||!e.productId)return null;
+  return {
+    productId:String(e.productId),
+    quantity:Math.max(1,parseInt(e.quantity,10)||1),
+    selectedLines:Array.isArray(e.selectedLines)?e.selectedLines.map(String):[]
+  };
+}).filter(function(x){return x&&state.products.some(function(p){return p.id===x.productId;});});
   state.quoteMeta=Object.assign({customer:'',phone:'',date:'',deliveryDate:'',discount:0,vat:Number(state.settings.vatRate)||20,note:''},state.quoteMeta||{});
 }
 
 /* ============ PERSISTENCE ============ */
-var STORAGE_KEY='ofisKatalog_v3';
+var STORAGE_KEY='ofisKatalog_v29';
 function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat,cloud:state.cloud,quoteItems:state.quoteItems,quoteMeta:state.quoteMeta};}
 function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));return true;}catch(e){console.error(e);alert('Tarayıcı depolama alanı dolu. Büyük fotoğrafları küçültün veya yedek alın.');return false;}}
-function loadFromStorage(){try{var raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;var d=JSON.parse(raw);if(!d||!Array.isArray(d.categories)||!Array.isArray(d.products))return;Object.assign(state,d);normalizeState();}catch(e){console.warn('Storage load failed',e);}}
+function loadFromStorage(){
+  try{
+    var raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) raw=localStorage.getItem('ofisKatalog_v3');
+    if(!raw)return;
+    var d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.categories)||!Array.isArray(d.products))return;
+    Object.assign(state,d);
+    normalizeState();
+    if(d.pin && !state.pinHash) state.pinHash=sha256Fallback(String(d.pin));
+    delete state.pin;
+  }catch(e){console.warn('Storage load failed',e);}
+}
 $('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');closeOverlay('adminOverlay');}});
 $('saveContinueBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');}});
 $('exportDataBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ofis-katalog-yedek.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},500);});
@@ -2188,5 +2208,9 @@ try{
 })();
 
 </script>
+<!-- OFISCHI V29 FIXES APPLIED -->
+<style>
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+</style>
 </body>
 </html>
