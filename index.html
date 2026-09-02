@@ -1430,44 +1430,14 @@ $('saveProductBtn').addEventListener('click',async function(){
 
 
 function defaultPdfDesign(){
-  return {format:'A3',orientation:'portrait',margin:{top:14,right:14,bottom:14,left:14},title:{x:14,y:31,w:269,size:14},photo:{x:14,y:52,w:82,h:62},table:{x:101,y:52,w:182,rowH:9},team:{x:239,w:44},nameSize:14,bodySize:6.1,priceSize:6.1,footerSize:7,itemsPerPage:10,showLogo:true,showCategoryHeader:true,showFooter:true,font:'helvetica',borderWidth:.45,headerColor:'#282828',textColor:'#191919'};
+  return {format:'A3',orientation:'portrait',margin:{top:10,right:10,bottom:10,left:10},title:{x:4,y:14,w:124,size:11},photo:{x:4,y:27,w:42,h:32},table:{x:48,y:27,w:76,rowH:5.5},team:{x:121,w:12},nameSize:10,bodySize:4.2,priceSize:5.2,footerSize:4.5,itemsPerPage:6,showLogo:true,showCategoryHeader:true,showFooter:true,font:'helvetica',borderWidth:.3,headerColor:'#282828',textColor:'#191919'};
 }
 function pdfDesign(){ return state.settings.pdfDesign || (state.settings.pdfDesign=defaultPdfDesign()); }
-function designNum(id,path){var v=$(id);if(!v)return;var d=pdfDesign();var parts=path.split('.'),o=d;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];o[parts[parts.length-1]]=Number(v.value)||0;}
 function loadPdfDesigner(){
   var d=pdfDesign(), map={pdfDesignFormat:d.format,pdfDesignOrientation:d.orientation,pdfMTop:d.margin.top,pdfMRight:d.margin.right,pdfMBottom:d.margin.bottom,pdfMLeft:d.margin.left,pdfTitleX:d.title.x,pdfTitleY:d.title.y,pdfTitleW:d.title.w,pdfTitleSize:d.title.size,pdfPhotoX:d.photo.x,pdfPhotoY:d.photo.y,pdfPhotoW:d.photo.w,pdfPhotoH:d.photo.h,pdfTableX:d.table.x,pdfTableY:d.table.y,pdfTableW:d.table.w,pdfRowH:d.table.rowH,pdfTeamX:d.team.x,pdfTeamW:d.team.w,pdfNameSize:d.nameSize,pdfBodySize:d.bodySize,pdfPriceSize:d.priceSize,pdfFooterSize:d.footerSize,pdfFont:d.font,pdfBorderWidth:d.borderWidth,pdfHeaderColor:d.headerColor,pdfTextColor:d.textColor,pdfItemsPerPage:d.itemsPerPage};
-  Object.keys(map).forEach(function(id){if($(id))$(id).value=map[id];});if($('pdfShowLogo'))$('pdfShowLogo').checked=!!d.showLogo;if($('pdfShowCategoryHeader'))$('pdfShowCategoryHeader').checked=!!d.showCategoryHeader;if($('pdfShowFooter'))$('pdfShowFooter').checked=!!d.showFooter;renderPdfDesignerPreview();
-}
-function readPdfDesigner(){
-  var d=pdfDesign();d.format=$('pdfDesignFormat').value;d.orientation=$('pdfDesignOrientation').value;d.margin={top:Number($('pdfMTop').value)||0,right:Number($('pdfMRight').value)||0,bottom:Number($('pdfMBottom').value)||0,left:Number($('pdfMLeft').value)||0};d.title={x:Number($('pdfTitleX').value)||0,y:Number($('pdfTitleY').value)||0,w:Number($('pdfTitleW').value)||100,size:Number($('pdfTitleSize').value)||10};d.photo={x:Number($('pdfPhotoX').value)||0,y:Number($('pdfPhotoY').value)||0,w:Number($('pdfPhotoW').value)||50,h:Number($('pdfPhotoH').value)||40};d.table={x:Number($('pdfTableX').value)||0,y:Number($('pdfTableY').value)||0,w:Number($('pdfTableW').value)||100,rowH:Number($('pdfRowH').value)||8};d.team={x:Number($('pdfTeamX').value)||0,w:Number($('pdfTeamW').value)||40};d.nameSize=Number($('pdfNameSize').value)||10;d.bodySize=Number($('pdfBodySize').value)||6;d.priceSize=Number($('pdfPriceSize').value)||6;d.footerSize=Number($('pdfFooterSize').value)||7;d.font=$('pdfFont').value||'helvetica';d.borderWidth=Number($('pdfBorderWidth').value)||.45;d.headerColor=$('pdfHeaderColor').value||'#282828';d.textColor=$('pdfTextColor').value||'#191919';d.itemsPerPage=Math.max(1,Math.min(30,parseInt($('pdfItemsPerPage').value,10)||10));d.showLogo=$('pdfShowLogo').checked;d.showCategoryHeader=$('pdfShowCategoryHeader').checked;d.showFooter=$('pdfShowFooter').checked;return d;
-}
-function renderPdfDesignerPreview(){
-  var p=$('pdfDesignPreview'); if(!p)return;
-  var d=readPdfDesigner(true), isA4=d.format==='A4', landscape=d.orientation==='landscape';
-  var pageW=isA4?(landscape?297:210):(landscape?420:297), pageH=isA4?(landscape?210:297):420;
-  p.style.width=pageW+'px'; p.style.height=pageH+'px';
-  var per=Math.max(1,Math.min(30,Number(d.itemsPerPage)||10));
-  var cat=catalogCats()[0], items=(cat&&cat.items)||[];
-  if(!items.length) items=[{name:'ÖRNEK ÜRÜN',photo:'',color:'',lines:[{module:'MASA',g:300,d:100,y:78,price:508200},{module:'DOLAP',g:242,d:60,y:112,price:209440}]}];
-  var usableH=pageH-d.margin.top-d.margin.bottom-20, gap=per>8?1.5:4, slotH=Math.max(10,(usableH-(per-1)*gap)/per);
-  var html='';
-  for(var i=0;i<per;i++){
-    var prod=items[i%items.length], scale=Math.min(1,slotH/105), bw=pageW-d.margin.left-d.margin.right;
-    html+='<div class="pdp-mini" style="position:absolute;left:'+d.margin.left+'px;top:'+(d.margin.top+i*(slotH+gap))+'px;width:'+bw+'px;height:'+slotH+'px;overflow:hidden;border:1px solid #bbb;background:#fff;">';
-    html+='<div style="position:absolute;inset:0;transform:scale('+scale+');transform-origin:top left;width:'+bw+'px;height:105px;">';
-    if(d.showCategoryHeader) html+='<div class="pdp-header" style="left:0;top:0;width:'+bw+'px;height:12px;background:'+d.headerColor+'">'+escapeHtml(cat?cat.cat.tr:'FİYAT LİSTESİ')+'</div>';
-    if(d.showLogo) html+='<div class="pdp-logo" style="left:'+d.margin.left+'px;top:3px;width:35px;height:10px">LOGO</div>';
-    html+='<div class="pdp-title" style="left:'+d.title.x+'px;top:'+d.title.y+'px;width:'+d.title.w+'px;font-size:'+Math.max(5,d.title.size/2.2)+'px;color:'+d.textColor+'">'+escapeHtml(String(prod.name||'ÜRÜN').toUpperCase())+'</div>';
-    html+='<div class="pdp-photo" style="left:'+d.photo.x+'px;top:'+d.photo.y+'px;width:'+d.photo.w+'px;height:'+d.photo.h+'px">'+(prod.photo?'<img src="'+prod.photo+'">':'GÖRSEL')+'</div>';
-    html+='<div class="pdp-table" style="left:'+d.table.x+'px;top:'+d.table.y+'px;width:'+d.table.w+'px;border-color:'+d.textColor+'"><div class="r" style="height:'+d.table.rowH+'px;background:'+d.headerColor+'"><span>MODÜL</span><span>G</span><span>D</span><span>Y</span><span>m³</span><span>FİYAT</span></div>';
-    var lines=Array.isArray(prod.lines)&&prod.lines.length?prod.lines:[{module:'MASA',g:300,d:100,y:78,price:508200}];
-    var showLines=Math.min(lines.length,Math.max(1,per>12?2:per>8?3:4));
-    for(var r=0;r<showLines;r++){var l=lines[r];html+='<div class="bodyr" style="height:'+Math.max(7,d.table.rowH)+'px;color:'+d.textColor+'"><span>'+escapeHtml(l.module||l.size||'-')+'</span><span>'+escapeHtml(l.g||'-')+'</span><span>'+escapeHtml(l.d||'-')+'</span><span>'+escapeHtml(l.y||'-')+'</span><span>'+(l.g&&l.d&&l.y?((Number(l.g)*Number(l.d)*Number(l.y))/1000000).toFixed(2):'-')+'</span><span>'+pdfMoney(l.price)+'</span></div>'}
-    html+='</div><div class="pdp-team" style="left:'+d.team.x+'px;top:'+d.table.y+'px;width:'+d.team.w+'px;height:'+Math.max(20,55)+'px;background:'+d.headerColor+';font-size:'+Math.max(5,d.priceSize/2)+'px">TAKIM<br>'+pdfMoney(productTotal(prod))+'</div>';
-    if(d.showFooter) html+='<div class="pdp-footer" style="left:'+d.margin.left+'px;bottom:2px;width:'+bw+'px;font-size:'+Math.max(3,d.footerSize/2)+'px">OFİSCHİ BÜRO MOBİLYALARI</div>';
-    html+='</div></div>';
-  }
-  p.innerHTML=html;
+  Object.keys(map).forEach(function(id){if($(id))$(id).value=map[id];});
+  if($('pdfShowLogo'))$('pdfShowLogo').checked=!!d.showLogo;if($('pdfShowCategoryHeader'))$('pdfShowCategoryHeader').checked=!!d.showCategoryHeader;if($('pdfShowFooter'))$('pdfShowFooter').checked=!!d.showFooter;
+  renderPdfDesignerPreview();
 }
 function readPdfDesigner(skipPreview){
   var d=pdfDesign();
@@ -1477,24 +1447,98 @@ function readPdfDesigner(skipPreview){
   d.photo={x:Number($('pdfPhotoX').value)||0,y:Number($('pdfPhotoY').value)||0,w:Number($('pdfPhotoW').value)||50,h:Number($('pdfPhotoH').value)||40};
   d.table={x:Number($('pdfTableX').value)||0,y:Number($('pdfTableY').value)||0,w:Number($('pdfTableW').value)||100,rowH:Number($('pdfRowH').value)||8};
   d.team={x:Number($('pdfTeamX').value)||0,w:Number($('pdfTeamW').value)||40};
-  d.nameSize=Number($('pdfNameSize').value)||10;d.bodySize=Number($('pdfBodySize').value)||6;d.priceSize=Number($('pdfPriceSize').value)||6;d.footerSize=Number($('pdfFooterSize').value)||7;
-  d.font=$('pdfFont').value||'helvetica';d.borderWidth=Number($('pdfBorderWidth').value)||.45;d.headerColor=$('pdfHeaderColor').value||'#282828';d.textColor=$('pdfTextColor').value||'#191919';
-  d.itemsPerPage=Math.max(1,Math.min(30,parseInt($('pdfItemsPerPage').value,10)||10));
-  d.showLogo=$('pdfShowLogo').checked;d.showCategoryHeader=$('pdfShowCategoryHeader').checked;d.showFooter=$('pdfShowFooter').checked;
-  if(!skipPreview) renderPdfDesignerPreview();
-  return d;
+  d.nameSize=Number($('pdfNameSize').value)||10;d.bodySize=Number($('pdfBodySize').value)||6;d.priceSize=Number($('pdfPriceSize').value)||6;d.footerSize=Number($('pdfFooterSize').value)||7;d.font=$('pdfFont').value||'helvetica';d.borderWidth=Number($('pdfBorderWidth').value)||.45;d.headerColor=$('pdfHeaderColor').value||'#282828';d.textColor=$('pdfTextColor').value||'#191919';d.itemsPerPage=Math.max(1,Math.min(30,parseInt($('pdfItemsPerPage').value,10)||6));d.showLogo=$('pdfShowLogo').checked;d.showCategoryHeader=$('pdfShowCategoryHeader').checked;d.showFooter=$('pdfShowFooter').checked;
+  if(!skipPreview)renderPdfDesignerPreview();return d;
 }
-function savePdfDesignNow(){
-  readPdfDesigner(true); state.settings.pdfDesign=JSON.parse(JSON.stringify(pdfDesign()));
-  try{saveToStorage();unsavedChanges=false;refreshSaveBarVisibility();}catch(e){console.error(e);}
+function pdfGrid(per,pageW,pageH,m){
+  var cols,rows;
+  if(per<=1){cols=1;rows=1;}else if(per===2){cols=2;rows=1;}else if(per<=4){cols=2;rows=2;}else if(per<=6){cols=2;rows=3;}else if(per<=8){cols=2;rows=4;}else if(per<=10){cols=2;rows=5;}else if(per<=12){cols=3;rows=4;}else if(per<=15){cols=3;rows=5;}else if(per<=16){cols=4;rows=4;}else if(per<=20){cols=4;rows=5;}else if(per<=24){cols=4;rows=6;}else{cols=5;rows=Math.ceil(per/5);}
+  if(pageW>pageH*1.15){var t=cols;cols=rows;rows=t;}
+  var gap=4,usableW=pageW-m.left-m.right-(cols-1)*gap,usableH=pageH-m.top-m.bottom-14-(rows-1)*gap;
+  return {cols:cols,rows:rows,gap:gap,cellW:usableW/cols,cellH:usableH/rows};
 }
-function bindPdfDesigner(){
-  var ids=['pdfDesignFormat','pdfDesignOrientation','pdfMTop','pdfMRight','pdfMBottom','pdfMLeft','pdfTitleX','pdfTitleY','pdfTitleW','pdfTitleSize','pdfPhotoX','pdfPhotoY','pdfPhotoW','pdfPhotoH','pdfTableX','pdfTableY','pdfTableW','pdfRowH','pdfTeamX','pdfTeamW','pdfNameSize','pdfBodySize','pdfPriceSize','pdfFooterSize','pdfFont','pdfBorderWidth','pdfHeaderColor','pdfTextColor','pdfItemsPerPage','pdfShowLogo','pdfShowCategoryHeader','pdfShowFooter'];
-  ids.forEach(function(id){var el=$(id);if(!el)return;['input','change'].forEach(function(ev){el.addEventListener(ev,function(){readPdfDesigner(true);renderPdfDesignerPreview();schedulePersist();});});});
-  if($('pdfDesignPreviewBtn'))$('pdfDesignPreviewBtn').addEventListener('click',function(){readPdfDesigner(true);renderPdfDesignerPreview();});
-  if($('pdfDesignSaveBtn'))$('pdfDesignSaveBtn').addEventListener('click',function(){savePdfDesignNow();alert('PDF tasarımı kaydedildi ve anında aktif edildi.');});
-  if($('pdfDesignResetBtn'))$('pdfDesignResetBtn').addEventListener('click',function(){state.settings.pdfDesign=defaultPdfDesign();loadPdfDesigner();savePdfDesignNow();});
+function previewProductBlock(prod,d,cellW,cellH,cat){
+  var scale=Math.min(1,cellW/135,cellH/125),sx=scale,sy=scale,html='<div style="position:absolute;inset:0;border:1px solid #b8b8b8;border-radius:5px;background:#fff;overflow:hidden;font-family:Arial,sans-serif;color:'+d.textColor+'">';
+  if(d.showCategoryHeader)html+='<div style="position:absolute;left:0;top:0;width:100%;height:'+Math.max(7,8*sy)+'px;background:'+d.headerColor+';color:#fff;text-align:center;font-weight:700;font-size:'+Math.max(3.5,5.5*sy)+'px;padding-top:1px">'+escapeHtml(cat?cat.cat.tr:'FİYAT LİSTESİ')+'</div>';
+  if(d.showLogo)html+='<div style="position:absolute;left:3px;top:'+(d.showCategoryHeader?10:3)+'px;width:25px;height:8px;border:1px solid #ccc;font-size:3.5px;display:flex;align-items:center;justify-content:center;color:#777;background:#fff">LOGO</div>';
+  var titleX=Math.max(2,d.title.x*sx),titleY=Math.max(d.showCategoryHeader?12:d.title.y*sy,d.title.y*sy),titleW=Math.min(cellW-4,d.title.w*sx);
+  html+='<div style="position:absolute;left:'+titleX+'px;top:'+titleY+'px;width:'+titleW+'px;font-size:'+Math.max(5,d.nameSize*sy)+'px;font-weight:800;line-height:1.05;text-align:left">'+escapeHtml(String(prod.name||'ÜRÜN').toUpperCase())+'</div>';
+  html+='<div style="position:absolute;left:'+(d.photo.x*sx)+'px;top:'+(d.photo.y*sy)+'px;width:'+(d.photo.w*sx)+'px;height:'+(d.photo.h*sy)+'px;background:#f6f6f4;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;overflow:hidden">'+(prod.photo?'<img src="'+prod.photo+'" style="width:100%;height:100%;object-fit:contain">':'GÖRSEL')+'</div>';
+  var tx=d.table.x*sx,ty=d.table.y*sy,tw=Math.min(cellW-tx-2,d.table.w*sx),rh=Math.max(4,d.table.rowH*sy),lines=Array.isArray(prod.lines)&&prod.lines.length?prod.lines:[{module:'MASA',g:300,d:100,y:78,price:0}];
+  html+='<div style="position:absolute;left:'+tx+'px;top:'+ty+'px;width:'+tw+'px;border:1px solid '+d.textColor+';font-size:'+Math.max(3.2,d.bodySize*sy)+'px"><div style="display:grid;grid-template-columns:31% 12% 12% 12% 13% 20%;height:'+rh+'px;background:'+d.headerColor+';color:#fff;font-weight:800">';['MODÜL','G','D','Y','m³','FİYAT'].forEach(function(h){html+='<span style="text-align:center;border-right:1px solid #777;padding-top:1px">'+h+'</span>';});html+='</div>';
+  lines.slice(0,4).forEach(function(l){var vol=(Number(l.g)&&Number(l.d)&&Number(l.y))?((Number(l.g)*Number(l.d)*Number(l.y))/1000000).toFixed(2):'-';html+='<div style="display:grid;grid-template-columns:31% 12% 12% 12% 13% 20%;height:'+rh+'px;color:'+d.textColor+'"><span style="padding-left:2px;overflow:hidden;white-space:nowrap">'+escapeHtml(l.module||l.size||'-')+'</span><span style="text-align:center">'+(l.g||'-')+'</span><span style="text-align:center">'+(l.d||'-')+'</span><span style="text-align:center">'+(l.y||'-')+'</span><span style="text-align:center">'+vol+'</span><span style="text-align:right;padding-right:2px">'+pdfMoney(l.price)+'</span></div>';});html+='</div>';
+  var teamX=Math.min(cellW-d.team.w*sx-2,d.team.x*sx),teamY=ty,teamW=Math.max(10,d.team.w*sx),teamH=Math.max(26,rh*(Math.min(lines.length,4)+1));html+='<div style="position:absolute;left:'+teamX+'px;top:'+teamY+'px;width:'+teamW+'px;height:'+teamH+'px;background:'+d.headerColor+';color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:'+Math.max(3.5,d.priceSize*sy)+'px;text-align:center">TAKIM<br>'+pdfMoney(productTotal(prod))+'</div>';
+  if(d.showFooter)html+='<div style="position:absolute;left:4px;right:4px;bottom:2px;text-align:center;font-size:'+Math.max(3,d.footerSize*sy)+'px;color:#777">OFİSCHİ BÜRO MOBİLYALARI</div>';
+  return html+'</div>';
 }
+function renderPdfDesignerPreview(){
+  var p=$('pdfDesignPreview');if(!p)return;var d=readPdfDesigner(true),isA4=d.format==='A4',landscape=d.orientation==='landscape',pageW=isA4?(landscape?297:210):(landscape?420:297),pageH=isA4?(landscape?210:297):420;p.style.width=pageW+'px';p.style.height=pageH+'px';p.style.position='relative';p.style.background='#fff';
+  var per=Math.max(1,Math.min(30,Number(d.itemsPerPage)||6)),grid=pdfGrid(per,pageW,pageH,d.margin),cat=catalogCats()[0],items=(cat&&cat.items)||[];if(!items.length)items=[{name:'ÖRNEK ÜRÜN',photo:'',color:'',lines:[{module:'MASA',g:300,d:100,y:78,price:508200},{module:'DOLAP',g:242,d:60,y:112,price:209440}]}];var html='';
+  for(var i=0;i<per;i++){var c=i%grid.cols,r=Math.floor(i/grid.cols),prod=items[i%items.length],x=d.margin.left+c*(grid.cellW+grid.gap),y=d.margin.top+r*(grid.cellH+grid.gap);html+='<div style="position:absolute;left:'+x+'px;top:'+y+'px;width:'+grid.cellW+'px;height:'+grid.cellH+'px">'+previewProductBlock(prod,d,grid.cellW,grid.cellH,cat)+'</div>';}
+  p.innerHTML=html;
+}
+function savePdfDesignNow(){readPdfDesigner(true);state.settings.pdfDesign=JSON.parse(JSON.stringify(pdfDesign()));try{saveToStorage();unsavedChanges=false;refreshSaveBarVisibility();}catch(e){console.error(e);}}
+function bindPdfDesigner(){var ids=['pdfDesignFormat','pdfDesignOrientation','pdfMTop','pdfMRight','pdfMBottom','pdfMLeft','pdfTitleX','pdfTitleY','pdfTitleW','pdfTitleSize','pdfPhotoX','pdfPhotoY','pdfPhotoW','pdfPhotoH','pdfTableX','pdfTableY','pdfTableW','pdfRowH','pdfTeamX','pdfTeamW','pdfNameSize','pdfBodySize','pdfPriceSize','pdfFooterSize','pdfFont','pdfBorderWidth','pdfHeaderColor','pdfTextColor','pdfItemsPerPage','pdfShowLogo','pdfShowCategoryHeader','pdfShowFooter'];ids.forEach(function(id){var el=$(id);if(!el)return;['input','change'].forEach(function(ev){el.addEventListener(ev,function(){readPdfDesigner(true);renderPdfDesignerPreview();schedulePersist();});});});if($('pdfDesignPreviewBtn'))$('pdfDesignPreviewBtn').addEventListener('click',function(){readPdfDesigner(true);renderPdfDesignerPreview();});if($('pdfDesignSaveBtn'))$('pdfDesignSaveBtn').addEventListener('click',function(){savePdfDesignNow();alert('PDF tasarımı kaydedildi ve anında aktif edildi.');});if($('pdfDesignResetBtn'))$('pdfDesignResetBtn').addEventListener('click',function(){state.settings.pdfDesign=defaultPdfDesign();loadPdfDesigner();savePdfDesignNow();});}
+async function drawCatalogProduct(doc,p,x,y,w,h){
+  var d=pdfDesign(),img=await pdfImageData(p.photo),team=productTotal(p),lines=Array.isArray(p.lines)?p.lines:[],scale=Math.min(1,w/135,h/125),ox=x,oy=y,sx=scale,sy=scale;
+  doc.setDrawColor(180,180,180);doc.setLineWidth(d.borderWidth);doc.setFillColor(255,255,255);doc.roundedRect(ox,oy,w,h,2,2,'FD');
+  if(d.showCategoryHeader){doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox,oy,w,8*sy,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(Math.max(4.5,6*sy));var cc=state.categories.find(function(c){return c.id===p.catId;});doc.text(pdfSafeText(state.lang==='tr'?(cc&&cc.tr||'FIYAT LISTESI'):(cc&&cc.en||'PRICE LIST')),ox+w/2,oy+5.5*sy,{align:'center'});}
+  if(d.showLogo&&state.settings.logo){var lg=await pdfImageData(state.settings.logo);pdfFitImage(doc,lg,ox+3,oy+(d.showCategoryHeader?9:3),24,7);}
+  var titleX=Math.max(2,d.title.x*sx),titleY=Math.max(d.showCategoryHeader?12:d.title.y*sy,d.title.y*sy),titleW=Math.min(w-4,d.title.w*sx);doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.setFont(d.font,'bold');doc.setFontSize(Math.max(5,d.nameSize*sy));doc.text(pdfSafeText(String(p.name||'URUN').toUpperCase()),ox+titleX,oy+titleY,{maxWidth:titleW});
+  pdfFitImage(doc,img,ox+d.photo.x*sx,oy+d.photo.y*sy,d.photo.w*sx,d.photo.h*sy);doc.setFont(d.font,'normal');doc.setFontSize(Math.max(3.5,d.bodySize*sy));doc.setTextColor(100,100,100);doc.text('RENK: '+pdfSafeText(p.color||'-'),ox+titleX,oy+titleY+5*sy,{maxWidth:titleW});
+  var tableX=d.table.x*sx,tableY=d.table.y*sy,tableW=Math.min(w-tableX-2,d.table.w*sx),rowH=Math.max(3.2,d.table.rowH*sy),heads=['MODUL','G','D','Y','m3','kg','FIYAT'],cols=[tableW*.28,tableW*.11,tableW*.11,tableW*.11,tableW*.12,tableW*.08,tableW*.19];doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+tableX,oy+tableY,tableW,rowH,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(Math.max(3.2,d.bodySize*sy));var cx=ox+tableX;heads.forEach(function(head,i){doc.text(head,cx+cols[i]/2,oy+tableY+rowH*.68,{align:'center'});cx+=cols[i];});
+  var rows=lines.length?lines:[{module:'-',g:'',d:'',y:'',price:team,weight:0}];doc.setFont(d.font,'normal');doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.setFontSize(Math.max(3.2,d.bodySize*sy));rows.forEach(function(l,ri){var yy=oy+tableY+rowH*(ri+1),g=Number(l.g)||0,dd=Number(l.d)||0,hh=Number(l.y)||0,vol=(g&&dd&&hh)?(g*dd*hh/1000000).toFixed(2):'-';if(ri%2){doc.setFillColor(249,249,249);doc.rect(ox+tableX,yy,tableW,rowH,'F');}doc.setDrawColor(220,220,220);doc.setLineWidth(Math.max(.15,d.borderWidth*sy));doc.rect(ox+tableX,yy,tableW,rowH);var vals=[pdfSafeText(l.module||l.size||'-'),g||'-',dd||'-',hh||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)];cx=ox+tableX;vals.forEach(function(v,i){if(i)doc.line(cx,yy,cx,yy+rowH);var al=i===0?'left':i===6?'right':'center';doc.text(String(v),al==='left'?cx+1.2:al==='right'?cx+cols[i]-1.2:cx+cols[i]/2,yy+rowH*.68,{align:al,maxWidth:Math.max(4,cols[i]-2)});cx+=cols[i];});});
+  var teamX=Math.min(w-d.team.w*sx-2,d.team.x*sx),teamW=Math.max(10,d.team.w*sx),teamH=Math.max(24,rowH*(rows.length+1));doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+teamX,oy+tableY,teamW,teamH,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(Math.max(3.5,6*sy));doc.text('TAKIM',ox+teamX+teamW/2,oy+tableY+8*sy,{align:'center'});doc.setFontSize(Math.max(3.2,d.priceSize*sy));doc.text(pdfMoney(team),ox+teamX+teamW/2,oy+tableY+17*sy,{align:'center',maxWidth:teamW-2});doc.setTextColor(25,25,25);
+  if(d.showFooter){doc.setDrawColor(205,205,205);doc.setLineWidth(.2);doc.line(ox+3,oy+h-6,ox+w-3,oy+h-6);doc.setFont(d.font,'normal');doc.setFontSize(Math.max(3,d.footerSize*sy));doc.setTextColor(100,100,100);doc.text(pdfSafeText(state.settings.companyInfo||'OFISCHI Büro Mobilyalari'),ox+w/2,oy+h-2.5,{align:'center',maxWidth:w-6});}
+}
+async function exportCatalogPdf(){
+  var d=pdfDesign(),orientation=d.orientation||'portrait',format=(d.format||'A3').toLowerCase(),doc=new window.jspdf.jsPDF({orientation:orientation,unit:'mm',format:format,compress:true});
+  var base=(format==='a4'?{portrait:[210,297],landscape:[297,210]}:{portrait:[297,420],landscape:[420,297]})[orientation]||[297,420],W=base[0],H=base[1],m=Math.max(d.margin.left,d.margin.right,d.margin.top,d.margin.bottom),cats=catalogCats(),pageCount=1,logo=await pdfImageData(state.settings.logo),cover=await pdfImageData(state.settings.catalogCover);
+  if(cover)pdfFitImage(doc,cover,0,0,W,H);else{
+    doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-65,90,130,60);
+    doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(34);doc.text('FIYAT LISTESI',W/2,190,{align:'center'});
+    doc.setDrawColor(170,140,80);doc.setLineWidth(1);doc.line(90,200,207,200);doc.setFont('helvetica','normal');doc.setFontSize(12);doc.text(pdfSafeText(state.settings.companyInfo||''),W/2,217,{align:'center',maxWidth:220});
+    doc.setFontSize(9);doc.setTextColor(110,110,110);doc.text(new Date().toLocaleDateString('tr-TR'),W/2,235,{align:'center'});
+  }
+  for(var ci=0;ci<cats.length;ci++){
+    var cat= cats[ci];doc.addPage();pageCount++;
+    var catCover=await pdfImageData(cat.cat.cover);
+    if(catCover)pdfFitImage(doc,catCover,0,0,W,H);else{
+      doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-55,120,110,48);
+      doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(31);doc.text(pdfSafeText(state.lang==='tr'?cat.cat.tr:cat.cat.en),W/2,220,{align:'center',maxWidth:240});doc.setDrawColor(170,140,80);doc.line(100,232,197,232);
+    }
+    var per=Math.max(1,Math.min(30,parseInt(d.itemsPerPage,10)||6)); var grid=pdfGrid(per,W,H,d.margin); for(var i=0;i<cat.items.length;i+=per){ doc.addPage();pageCount++; pdfHeader(doc,state.lang==='tr'?cat.cat.tr:cat.cat.en,'OFISCHI FIYAT LISTESI',logo,W); for(var k=0;k<per&&i+k<cat.items.length;k++){ var gc=k%grid.cols,gr=Math.floor(k/grid.cols),gx=d.margin.left+gc*(grid.cellW+grid.gap),gy=d.margin.top+27+gr*(grid.cellH+grid.gap); await drawCatalogProduct(doc,cat.items[i+k],gx,gy,grid.cellW,grid.cellH); } }
+  }
+  var total=doc.getNumberOfPages();for(var pg=1;pg<=total;pg++){doc.setPage(pg);if(pg>1)pdfFooter(doc,W,H,pg,total);}
+  doc.save('ofischi-fiyat-listesi-'+new Date().toISOString().slice(0,10)+'.pdf');
+}
+$('pdfBtn').addEventListener('click',function(){
+  var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';self.textContent='PDF HAZIRLANIYOR...';
+  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF olusturulamadi. Internet baglantisini ve PDF kutuphanesini kontrol edin.');}).finally(function(){self.dataset.busy='0';self.textContent='PDF';});
+});
+function quoteCalc(){
+  var entries=getQuoteEntries(),sub=entries.reduce(function(s,e){return s+productTotal(e.p)*e.quantity;},0),meta=state.quoteMeta||{};
+  var pct=Math.min(100,Math.max(0,Number(meta.discount)||0)),disc=sub*pct/100,net=sub-disc,vatRate=Number(meta.vat);if(!Number.isFinite(vatRate)||vatRate<0)vatRate=Number(state.settings.vatRate)||20;var vat=net*vatRate/100;
+  return {entries:entries,sub:sub,pct:pct,disc:disc,net:net,vatRate:vatRate,vat:vat,grand:net+vat};
+}
+async function exportQuotePdf(){
+  var jsPDF=window.jspdf.jsPDF,doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),W=210,H=297,m=12,calc=quoteCalc(),logo=await pdfImageData(state.settings.logo),meta=state.quoteMeta||{};
+  function header(){pdfHeader(doc,'TEKLIF','OFISCHI',logo,W);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(90,90,90);doc.text(pdfSafeText(state.settings.companyInfo||''),W-m,35,{align:'right',maxWidth:115});doc.text('Tarih: '+pdfSafeText(fmtDate(meta.date)),W-m,42,{align:'right'});doc.setTextColor(25,25,25);}
+  function customer(y){doc.setFillColor(247,247,245);doc.roundedRect(m,y,W-2*m,27,3,3,'F');doc.setTextColor(125,95,45);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('MUSTERI / FIRMA',m+5,y+7);doc.text('TEKLIF TARIHI',m+105,y+7);doc.setTextColor(25,25,25);doc.setFontSize(10);doc.text(pdfSafeText(meta.customer||'-'),m+5,y+15,{maxWidth:90});doc.setFontSize(8);doc.setTextColor(85,85,85);doc.text(pdfSafeText(meta.phone||''),m+5,y+22);doc.text(pdfSafeText(fmtDate(meta.date)),m+105,y+15);doc.text('TESLIM: '+pdfSafeText(fmtDate(meta.deliveryDate)),m+105,y+22);doc.setTextColor(25,25,25);}
+  function tableHead(y){doc.setFillColor(40,40,40);doc.rect(m,y,W-2*m,9,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6.5);[['GORSEL',m+17],['URUN / OLCU',m+43],['RENK',m+103],['ADET',m+124],['BIRIM',m+151],['TOPLAM',W-m-2]].forEach(function(a,i){doc.text(a[0],a[1],y+6,{align:i===5?'right':'left'});});doc.setTextColor(25,25,25);}
+  function productRow(e,y){var p=e.p,img=pdfImageData(p.photo);return img.then(function(im){var h=32;doc.setDrawColor(220,220,220);doc.rect(m,y,W-2*m,h);pdfFitImage(doc,im,m+3,y+3,29,26);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(pdfSafeText(p.name||'-'),m+34,y+9,{maxWidth:55});doc.setFont('helvetica','normal');doc.setFontSize(5.8);doc.setTextColor(100,100,100);doc.text(pdfSafeText(quoteProductMeasure(p)),m+34,y+16,{maxWidth:55});doc.text(pdfSafeText(p.color||'-'),m+91,y+11,{maxWidth:27});doc.text(String(e.quantity),m+117,y+11,{align:'center'});doc.text(pdfMoney(productTotal(p)),m+143,y+11,{align:'right'});doc.setFont('helvetica','bold');doc.text(pdfMoney(productTotal(p)*e.quantity),W-m-2,y+11,{align:'right'});doc.setTextColor(25,25,25);return h;});}
+  header();customer(49);var y=84;tableHead(y);y+=9;
+  for(var i=0;i<calc.entries.length;i++){if(y>H-65){doc.addPage();header();y=49;tableHead(y);y+=9;}y+=await productRow(calc.entries[i],y);}
+  var bx=W-m-78;doc.setDrawColor(210,210,210);doc.line(bx,y+3,W-m,y+3);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  function sumRow(label,val,yy,bold){doc.setFont('helvetica',bold?'bold':'normal');doc.text(label,bx,yy);doc.text(pdfMoney(val),W-m,yy,{align:'right'});}
+  sumRow('ARA TOPLAM',calc.sub,y+12,false);sumRow('ISKONTO %'+calc.pct,calc.disc,y+21,false);sumRow('KDV %'+calc.vatRate,calc.vat,y+30,false);doc.setFillColor(40,40,40);doc.rect(bx,y+35,W-m-bx,13,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('GENEL TOPLAM',bx+4,y+43);doc.text(pdfMoney(calc.grand),W-m-4,y+43,{align:'right'});doc.setTextColor(25,25,25);
+  doc.setFontSize(7);doc.setTextColor(125,95,45);doc.text('ODEME SARTLARI',m,y+61);doc.text('ACIKLAMA / NOT',m+98,y+61);doc.setTextColor(70,70,70);pdfText(doc,state.settings.paymentTerms||'-',m,y+68,85,7);pdfText(doc,meta.note||'-',m+98,y+68,88,7);
+  pdfFooter(doc,W,H,doc.getNumberOfPages(),doc.getNumberOfPages());doc.save('ofischi-teklif-'+new Date().toISOString().slice(0,10)+'.pdf');
+}
+if($('quotePdf')) $('quotePdf').addEventListener('click',function(){var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';try{quoteMetaFromForm();}catch(e){};ensurePdfLibraries().then(exportQuotePdf).catch(function(e){console.error(e);alert('Teklif PDF olusturulamadi.');}).finally(function(){self.dataset.busy='0';});});
+
+
+
 function normalizeState(){
   state.rates=Object.assign({USD:34.5,EUR:37.2},state.rates||{});
   state.settings=Object.assign({bg:'#0a0a0b',accent:'#d4af6a',text:'#f3efe4',card:'#161410',chip:'#1a1712',logo:null,logoSize:150,thumbSize:150,pdfFormat:'detailed',companyInfo:'',paymentTerms:'',vatRate:20,catalogCover:null},state.settings||{});
@@ -1526,141 +1570,6 @@ $('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsaved
 $('saveContinueBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');}});
 $('exportDataBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ofis-katalog-yedek.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},500);});
 $('importDataInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.categories||!d.products)throw Error();Object.assign(state,d);normalizeState();applyTheme();$('langLabel').textContent=state.lang.toUpperCase();$('curLabel').textContent=state.currency==='TRY'?'₺ TL':state.currency==='USD'?'$ Dolar':'€ Euro';renderLogos();renderCats();renderProducts();renderCatalogCategoryList();markDirty();alert(t('saveSuccess'));}catch(err){alert('Geçersiz yedek dosyası.');}};r.readAsText(f);e.target.value='';});
-
-/* ============ PROFESSIONAL PDF EXPORT V9 ============ */
-var pdfLibPromise=null;
-function loadScript(src,timeoutMs){
-  return new Promise(function(resolve,reject){
-    var existing=document.querySelector('script[data-pdf-src="'+src+'"]');
-    if(existing){
-      if(existing.dataset.loaded==='1'){resolve();return;}
-      existing.addEventListener('load',function(){resolve();},{once:true});
-      existing.addEventListener('error',function(){reject(new Error('PDF kütüphanesi yüklenemedi'));},{once:true});
-      return;
-    }
-    var s=document.createElement('script');s.src=src;s.async=true;s.dataset.pdfSrc=src;
-    var done=false,t=setTimeout(function(){if(done)return;done=true;reject(new Error('PDF kütüphanesi zaman aşımına uğradı'));},timeoutMs||12000);
-    s.onload=function(){if(done)return;done=true;clearTimeout(t);s.dataset.loaded='1';resolve();};
-    s.onerror=function(){if(done)return;done=true;clearTimeout(t);reject(new Error('PDF kütüphanesi yüklenemedi'));};
-    document.head.appendChild(s);
-  });
-}
-function ensurePdfLibraries(){
-  if(window.jspdf&&window.jspdf.jsPDF) return Promise.resolve();
-  if(!pdfLibPromise){
-    pdfLibPromise=loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',10000).catch(function(){
-      return loadScript('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js',10000);
-    });
-  }
-  return pdfLibPromise;
-}
-function hexRgb(hex){var h=String(hex||'#282828').replace('#','');if(h.length===3)h=h.split('').map(function(x){return x+x;}).join('');var n=parseInt(h,16);return [isNaN(n)?40:(n>>16)&255,isNaN(n)?40:(n>>8)&255,isNaN(n)?40:n&255];}
-function pdfMoney(v){return fmt(Number(v)||0);}
-function pdfSafeText(v){
-  return String(v==null?'':v).replace(/İ/g,'I').replace(/ı/g,'i').replace(/Ş/g,'S').replace(/ş/g,'s').replace(/Ğ/g,'G').replace(/ğ/g,'g').replace(/Ü/g,'U').replace(/ü/g,'u').replace(/Ö/g,'O').replace(/ö/g,'o').replace(/Ç/g,'C').replace(/ç/g,'c');
-}
-function pdfText(doc,text,x,y,maxW,size,style){
-  doc.setFont('helvetica',style||'normal');doc.setFontSize(size||9);
-  var arr=doc.splitTextToSize(pdfSafeText(text),maxW||100);doc.text(arr,x,y);return arr.length*(size||9)*0.36;
-}
-function pdfImageData(src){
-  return new Promise(function(resolve){
-    if(!src){resolve(null);return;}
-    var finished=false;
-    var timer=setTimeout(function(){if(!finished){finished=true;resolve(null);}},8000);
-    var im=new Image();im.onload=function(){
-      if(finished)return;try{
-        var max=1400,nw=im.naturalWidth||im.width||1,nh=im.naturalHeight||im.height||1,scale=Math.min(1,max/Math.max(nw,nh));
-        var c=document.createElement('canvas');c.width=Math.max(1,Math.round(nw*scale));c.height=Math.max(1,Math.round(nh*scale));
-        var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(im,0,0,c.width,c.height);
-        finished=true;clearTimeout(timer);resolve({data:c.toDataURL('image/jpeg',0.88),w:c.width,h:c.height});
-      }catch(e){finished=true;clearTimeout(timer);resolve(null);}
-    };im.onerror=function(){if(!finished){finished=true;clearTimeout(timer);resolve(null);}};im.src=src;
-  });
-}
-function pdfFitImage(doc,img,x,y,w,h){
-  if(!img)return false;var r=Math.min(w/img.w,h/img.h),iw=img.w*r,ih=img.h*r;
-  try{doc.addImage(img.data,'JPEG',x+(w-iw)/2,y+(h-ih)/2,iw,ih,undefined,'FAST');return true;}catch(e){return false;}
-}
-function pdfHeader(doc,title,subtitle,logoImg,pageW){
-  var m=14;doc.setFillColor(28,25,21);doc.rect(0,0,pageW,27,'F');
-  if(logoImg)pdfFitImage(doc,logoImg,m,5,52,17);else{doc.setTextColor(230,210,170);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('OFISCHI',m,17);}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(pdfSafeText(title),pageW/2,17,{align:'center'});
-  if(subtitle){doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(210,205,195);doc.text(pdfSafeText(subtitle),pageW-m,17,{align:'right'});}
-  doc.setTextColor(25,25,25);
-}
-function pdfFooter(doc,pageW,pageH,pageNo,totalPages){
-  var m=14;doc.setDrawColor(205,205,205);doc.setLineWidth(.3);doc.line(m,pageH-11,pageW-m,pageH-11);
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,100,100);
-  doc.text(pdfSafeText(state.settings.companyInfo||'OFISCHI Büro Mobilyalari'),m,pageH-6);
-  doc.text('Sayfa '+pageNo+' / '+totalPages,pageW-m,pageH-6,{align:'right'});doc.setTextColor(25,25,25);
-}
-function catalogCats(){
-  return state.categories.map(function(cat){return {cat:cat,items:state.products.filter(function(p){return p&&p.catId===cat.id;})};}).filter(function(x){return x.items.length;});
-}
-async function drawCatalogProduct(doc,p,x,y,w,h){
-  var d=pdfDesign(),img=await pdfImageData(p.photo),team=productTotal(p),lines=Array.isArray(p.lines)?p.lines:[],ox=x,oy=y; var designScale=Math.min(1,Math.max(.22,h/105));
-  /* Design coordinates are page-mm. x/y passed here are page offsets only for backward compatibility. */
-  var titleX=d.title.x*designScale,titleY=d.title.y*designScale,titleW=d.title.w*designScale,photoX=d.photo.x*designScale,photoY=d.photo.y*designScale,photoW=d.photo.w*designScale,photoH=d.photo.h*designScale,tableX=d.table.x*designScale,tableY=d.table.y*designScale,tableW=d.table.w*designScale,rowH=Math.max(2.5,d.table.rowH*designScale),teamX=d.team.x*designScale,teamW=d.team.w*designScale;
-  doc.setDrawColor(180,180,180);doc.setLineWidth(d.borderWidth);doc.setFillColor(255,255,255);doc.roundedRect(ox,oy,w,h,2,2,'FD');
-  if(d.showLogo && state.settings.logo){var lg=await pdfImageData(state.settings.logo);pdfFitImage(doc,lg,ox+d.margin.left,oy+d.margin.top,35,12);}
-  if(d.showCategoryHeader){doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+d.margin.left,oy+d.margin.top, w-d.margin.left-d.margin.right,12,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(7);doc.text(pdfSafeText(state.lang==='tr'?(state.categories.find(function(c){return c.id===p.catId;})||{}).tr||'FIYAT LISTESI':(state.categories.find(function(c){return c.id===p.catId;})||{}).en||'PRICE LIST'),ox+w/2,oy+d.margin.top+8,{align:'center'});}
-  doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.setFont(d.font,'bold');doc.setFontSize(Math.max(4,d.nameSize*designScale));doc.text(pdfSafeText(String(p.name||'URUN').toUpperCase()),ox+titleX,oy+titleY,{maxWidth:titleW});
-  pdfFitImage(doc,img,ox+photoX,oy+photoY,photoW,photoH);
-  doc.setFont(d.font,'normal');doc.setFontSize(Math.max(3.5,d.bodySize*designScale));doc.setTextColor(100,100,100);doc.text('RENK: '+pdfSafeText(p.color||'-'),ox+titleX,oy+titleY+7,{maxWidth:titleW});
-  var heads=['MODUL','G','D','Y','m3','kg','FIYAT'];var cols=[tableW*.28,tableW*.11,tableW*.11,tableW*.11,tableW*.12,tableW*.08,tableW*.19];
-  doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+tableX,oy+tableY,tableW,rowH,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(d.bodySize);var cx=ox+tableX;heads.forEach(function(head,i){doc.text(head,cx+cols[i]/2,oy+tableY+rowH*.67,{align:'center'});cx+=cols[i];});
-  var rows=lines.length?lines:[{module:'-',g:'',d:'',y:'',price:team,weight:0}];doc.setFont(d.font,'normal');doc.setTextColor.apply(doc,hexRgb(d.textColor));doc.setFontSize(d.bodySize);
-  rows.forEach(function(l,ri){var yy=oy+tableY+rowH*(ri+1),g=Number(l.g)||0,dd=Number(l.d)||0,hh=Number(l.y)||0,vol=(g&&dd&&hh)?(g*dd*hh/1000000).toFixed(2):'-';if(ri%2){doc.setFillColor(249,249,249);doc.rect(ox+tableX,yy,tableW,rowH,'F');}doc.setDrawColor(220,220,220);doc.setLineWidth(d.borderWidth);doc.rect(ox+tableX,yy,tableW,rowH);var vals=[pdfSafeText(l.module||l.size||'-'),g||'-',dd||'-',hh||'-',vol,Number(l.weight)||'-',pdfMoney(l.price)];cx=ox+tableX;vals.forEach(function(v,i){if(i)doc.line(cx,yy,cx,yy+rowH);var al=i===0?'left':i===6?'right':'center';doc.text(String(v),al==='left'?cx+2:al==='right'?cx+cols[i]-2:cx+cols[i]/2,yy+rowH*.67,{align:al});cx+=cols[i];});});
-  var teamH=Math.max(rowH*(rows.length+1),32);doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+teamX,oy+tableY,teamW,teamH,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(Math.max(4,7*designScale));doc.text('TAKIM',ox+teamX+teamW/2,oy+tableY+11,{align:'center'});doc.setFontSize(Math.max(3.5,d.priceSize*designScale));doc.text(pdfMoney(team),ox+teamX+teamW/2,oy+tableY+23,{align:'center',maxWidth:teamW-4});doc.setTextColor(25,25,25);
-  if(d.showFooter){doc.setDrawColor(205,205,205);doc.line(ox+d.margin.left,oy+h-d.margin.bottom,ox+w-d.margin.right,oy+h-d.margin.bottom);doc.setFont(d.font,'normal');doc.setFontSize(d.footerSize);doc.setTextColor(100,100,100);doc.text(pdfSafeText(state.settings.companyInfo||'OFISCHI Büro Mobilyalari'),ox+d.margin.left,oy+h-d.margin.bottom+4);doc.setTextColor(25,25,25);}
-}
-async function exportCatalogPdf(){
-  var d=pdfDesign(),orientation=d.orientation||'portrait',format=(d.format||'A3').toLowerCase(),doc=new window.jspdf.jsPDF({orientation:orientation,unit:'mm',format:format,compress:true});
-  var base=(format==='a4'?{portrait:[210,297],landscape:[297,210]}:{portrait:[297,420],landscape:[420,297]})[orientation]||[297,420],W=base[0],H=base[1],m=Math.max(d.margin.left,d.margin.right,d.margin.top,d.margin.bottom),cats=catalogCats(),pageCount=1,logo=await pdfImageData(state.settings.logo),cover=await pdfImageData(state.settings.catalogCover);
-  if(cover)pdfFitImage(doc,cover,0,0,W,H);else{
-    doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-65,90,130,60);
-    doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(34);doc.text('FIYAT LISTESI',W/2,190,{align:'center'});
-    doc.setDrawColor(170,140,80);doc.setLineWidth(1);doc.line(90,200,207,200);doc.setFont('helvetica','normal');doc.setFontSize(12);doc.text(pdfSafeText(state.settings.companyInfo||''),W/2,217,{align:'center',maxWidth:220});
-    doc.setFontSize(9);doc.setTextColor(110,110,110);doc.text(new Date().toLocaleDateString('tr-TR'),W/2,235,{align:'center'});
-  }
-  for(var ci=0;ci<cats.length;ci++){
-    var cat= cats[ci];doc.addPage();pageCount++;
-    var catCover=await pdfImageData(cat.cat.cover);
-    if(catCover)pdfFitImage(doc,catCover,0,0,W,H);else{
-      doc.setFillColor(248,247,244);doc.rect(0,0,W,H,'F');if(logo)pdfFitImage(doc,logo,W/2-55,120,110,48);
-      doc.setTextColor(35,32,28);doc.setFont('helvetica','bold');doc.setFontSize(31);doc.text(pdfSafeText(state.lang==='tr'?cat.cat.tr:cat.cat.en),W/2,220,{align:'center',maxWidth:240});doc.setDrawColor(170,140,80);doc.line(100,232,197,232);
-    }
-    var per=Math.max(1,Math.min(30,parseInt(d.itemsPerPage,10)||10)); var contentH=H-34-18,slotGap=per>8?2:7,slotH=Math.max(18,(contentH-(per-1)*slotGap)/per),slots=[]; for(var si=0;si<per;si++)slots.push(34+si*(slotH+slotGap)); for(var i=0;i<cat.items.length;i+=per){ doc.addPage();pageCount++; pdfHeader(doc,state.lang==='tr'?cat.cat.tr:cat.cat.en,'OFISCHI FIYAT LISTESI',logo,W); for(var k=0;k<per&&i+k<cat.items.length;k++){ await drawCatalogProduct(doc,cat.items[i+k],m,slots[k],W-2*m,slotH); } }
-  }
-  var total=doc.getNumberOfPages();for(var pg=1;pg<=total;pg++){doc.setPage(pg);if(pg>1)pdfFooter(doc,W,H,pg,total);}
-  doc.save('ofischi-fiyat-listesi-'+new Date().toISOString().slice(0,10)+'.pdf');
-}
-$('pdfBtn').addEventListener('click',function(){
-  var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';self.textContent='PDF HAZIRLANIYOR...';
-  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF olusturulamadi. Internet baglantisini ve PDF kutuphanesini kontrol edin.');}).finally(function(){self.dataset.busy='0';self.textContent='PDF';});
-});
-function quoteCalc(){
-  var entries=getQuoteEntries(),sub=entries.reduce(function(s,e){return s+productTotal(e.p)*e.quantity;},0),meta=state.quoteMeta||{};
-  var pct=Math.min(100,Math.max(0,Number(meta.discount)||0)),disc=sub*pct/100,net=sub-disc,vatRate=Number(meta.vat);if(!Number.isFinite(vatRate)||vatRate<0)vatRate=Number(state.settings.vatRate)||20;var vat=net*vatRate/100;
-  return {entries:entries,sub:sub,pct:pct,disc:disc,net:net,vatRate:vatRate,vat:vat,grand:net+vat};
-}
-async function exportQuotePdf(){
-  var jsPDF=window.jspdf.jsPDF,doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true}),W=210,H=297,m=12,calc=quoteCalc(),logo=await pdfImageData(state.settings.logo),meta=state.quoteMeta||{};
-  function header(){pdfHeader(doc,'TEKLIF','OFISCHI',logo,W);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(90,90,90);doc.text(pdfSafeText(state.settings.companyInfo||''),W-m,35,{align:'right',maxWidth:115});doc.text('Tarih: '+pdfSafeText(fmtDate(meta.date)),W-m,42,{align:'right'});doc.setTextColor(25,25,25);}
-  function customer(y){doc.setFillColor(247,247,245);doc.roundedRect(m,y,W-2*m,27,3,3,'F');doc.setTextColor(125,95,45);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text('MUSTERI / FIRMA',m+5,y+7);doc.text('TEKLIF TARIHI',m+105,y+7);doc.setTextColor(25,25,25);doc.setFontSize(10);doc.text(pdfSafeText(meta.customer||'-'),m+5,y+15,{maxWidth:90});doc.setFontSize(8);doc.setTextColor(85,85,85);doc.text(pdfSafeText(meta.phone||''),m+5,y+22);doc.text(pdfSafeText(fmtDate(meta.date)),m+105,y+15);doc.text('TESLIM: '+pdfSafeText(fmtDate(meta.deliveryDate)),m+105,y+22);doc.setTextColor(25,25,25);}
-  function tableHead(y){doc.setFillColor(40,40,40);doc.rect(m,y,W-2*m,9,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6.5);[['GORSEL',m+17],['URUN / OLCU',m+43],['RENK',m+103],['ADET',m+124],['BIRIM',m+151],['TOPLAM',W-m-2]].forEach(function(a,i){doc.text(a[0],a[1],y+6,{align:i===5?'right':'left'});});doc.setTextColor(25,25,25);}
-  function productRow(e,y){var p=e.p,img=pdfImageData(p.photo);return img.then(function(im){var h=32;doc.setDrawColor(220,220,220);doc.rect(m,y,W-2*m,h);pdfFitImage(doc,im,m+3,y+3,29,26);doc.setFont('helvetica','bold');doc.setFontSize(7);doc.text(pdfSafeText(p.name||'-'),m+34,y+9,{maxWidth:55});doc.setFont('helvetica','normal');doc.setFontSize(5.8);doc.setTextColor(100,100,100);doc.text(pdfSafeText(quoteProductMeasure(p)),m+34,y+16,{maxWidth:55});doc.text(pdfSafeText(p.color||'-'),m+91,y+11,{maxWidth:27});doc.text(String(e.quantity),m+117,y+11,{align:'center'});doc.text(pdfMoney(productTotal(p)),m+143,y+11,{align:'right'});doc.setFont('helvetica','bold');doc.text(pdfMoney(productTotal(p)*e.quantity),W-m-2,y+11,{align:'right'});doc.setTextColor(25,25,25);return h;});}
-  header();customer(49);var y=84;tableHead(y);y+=9;
-  for(var i=0;i<calc.entries.length;i++){if(y>H-65){doc.addPage();header();y=49;tableHead(y);y+=9;}y+=await productRow(calc.entries[i],y);}
-  var bx=W-m-78;doc.setDrawColor(210,210,210);doc.line(bx,y+3,W-m,y+3);doc.setFont('helvetica','normal');doc.setFontSize(8);
-  function sumRow(label,val,yy,bold){doc.setFont('helvetica',bold?'bold':'normal');doc.text(label,bx,yy);doc.text(pdfMoney(val),W-m,yy,{align:'right'});}
-  sumRow('ARA TOPLAM',calc.sub,y+12,false);sumRow('ISKONTO %'+calc.pct,calc.disc,y+21,false);sumRow('KDV %'+calc.vatRate,calc.vat,y+30,false);doc.setFillColor(40,40,40);doc.rect(bx,y+35,W-m-bx,13,'F');doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('GENEL TOPLAM',bx+4,y+43);doc.text(pdfMoney(calc.grand),W-m-4,y+43,{align:'right'});doc.setTextColor(25,25,25);
-  doc.setFontSize(7);doc.setTextColor(125,95,45);doc.text('ODEME SARTLARI',m,y+61);doc.text('ACIKLAMA / NOT',m+98,y+61);doc.setTextColor(70,70,70);pdfText(doc,state.settings.paymentTerms||'-',m,y+68,85,7);pdfText(doc,meta.note||'-',m+98,y+68,88,7);
-  pdfFooter(doc,W,H,doc.getNumberOfPages(),doc.getNumberOfPages());doc.save('ofischi-teklif-'+new Date().toISOString().slice(0,10)+'.pdf');
-}
-if($('quotePdf')) $('quotePdf').addEventListener('click',function(){var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';try{quoteMetaFromForm();}catch(e){};ensurePdfLibraries().then(exportQuotePdf).catch(function(e){console.error(e);alert('Teklif PDF olusturulamadi.');}).finally(function(){self.dataset.busy='0';});});
-
 
 
 /* ============ CLOUD / TRANSLATION ============ */
