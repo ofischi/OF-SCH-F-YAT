@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ofis Katalog</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#0a0a0b;
+  --panel-bg:#171512;
+  --card-bg:#161410;
+  --border:rgba(212,175,106,.16);
+  --border-strong:rgba(212,175,106,.38);
+  --text:#f3efe4;
+  --text-dim:#9c9284;
+  --gold:#d4af6a;
+  --gold-light:#f2ddab;
+  --gold-deep:#a97f3f;
+  --chip-bg:#1a1712;
+  --thumb-size:150px;
+  --logo-size:150px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Manrope',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+  min-height:100dvh;
+}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; -webkit-tap-highlight-color:transparent;}
+input,select{font-family:inherit;}
+img{max-width:100%; display:block;}
+.serif{font-family:'Playfair Display', serif;}
+.gold-text{
+  background:linear-gradient(100deg, var(--gold-deep) 0%, var(--gold-light) 35%, var(--gold) 55%, var(--gold-light) 75%, var(--gold-deep) 100%);
+  background-size:220% auto;
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  animation:shimmer 7s linear infinite;
+}
+@keyframes shimmer{ to{ background-position:-220% center; } }
+
+@keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes scaleIn{ from{opacity:0; transform:scale(.94);} to{opacity:1; transform:scale(1);} }
+@keyframes breathe{ 0%,100%{opacity:.5; transform:scale(1);} 50%{opacity:1; transform:scale(1.04);} }
+@keyframes spin-slow{ to{ transform:rotate(360deg); } }
+
+/* ---------- BACKGROUND AMBIENCE ---------- */
+.ambient{
+  position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+}
+.ambient::before, .ambient::after{
+  content:''; position:absolute; width:60vmax; height:60vmax; border-radius:50%;
+  background:radial-gradient(circle, rgba(212,175,106,.09) 0%, transparent 70%);
+  animation:breathe 10s ease-in-out infinite;
+}
+.ambient::before{ top:-20vmax; left:-15vmax; }
+.ambient::after{ bottom:-25vmax; right:-20vmax; animation-delay:2.5s; }
+
+/* ---------- SPLASH ---------- */
+#splash{
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  z-index:500; cursor:pointer;
+  transition:opacity .7s cubic-bezier(.4,0,.2,1), visibility .7s;
+}
+#splash.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+.splash-ring{
+  width:min(180px,50vw); height:min(180px,50vw); border-radius:50%;
+  border:1px solid var(--border-strong);
+  display:flex; align-items:center; justify-content:center; position:relative;
+  animation:scaleIn 1s cubic-bezier(.16,1,.3,1);
+}
+.splash-ring::before{
+  content:''; position:absolute; inset:-14px; border-radius:50%;
+  border:1px solid var(--border); animation:spin-slow 30s linear infinite;
+}
+.splash-ring .splash-logo-inner{width:66%; height:66%; display:flex; align-items:center; justify-content:center;}
+.splash-ring .splash-logo-inner img{width:100%; height:100%; object-fit:contain;}
+.splash-wordmark{font-family:'Playfair Display',serif; font-weight:600; font-size:15px; text-align:center; line-height:1.35;}
+#splash .splash-hint{
+  margin-top:26px; font-size:11.5px; color:var(--text-dim); letter-spacing:.12em;
+  opacity:0; animation:fadeIn 1s ease .9s forwards;
+}
+
+/* ---------- APP ---------- */
+#app{min-height:100%; display:none; position:relative; z-index:1;}
+#app.visible{display:block;}
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px;
+  background:rgba(10,10,11,.82);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.topbar .left, .topbar .right{display:flex; align-items:center; gap:8px; position:relative;}
+.pill-btn{
+  padding:7px 13px; border-radius:20px; background:var(--chip-bg);
+  border:1px solid var(--border); font-size:12.5px; font-weight:600;
+  color:var(--text); display:flex; align-items:center; gap:6px;
+  transition:border-color .25s, transform .15s;
+}
+.pill-btn:active{transform:scale(.95);}
+.icon-btn{
+  width:37px; height:37px; border-radius:50%; background:var(--chip-bg);
+  border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  transition:border-color .25s, transform .15s;
+}
+.icon-btn:active{transform:scale(.9);}
+.icon-btn svg{width:16px; height:16px; stroke:var(--gold);}
+
+.dropdown{
+  position:absolute; top:calc(100% + 8px); left:0;
+  background:#151310; border:1px solid var(--border-strong); border-radius:12px;
+  min-width:135px; overflow:hidden; z-index:60;
+  box-shadow:0 14px 40px rgba(0,0,0,.55);
+  display:none; transform-origin:top left;
+}
+.dropdown.open{display:block; animation:scaleIn .18s cubic-bezier(.16,1,.3,1);}
+.dropdown button{
+  width:100%; text-align:left; padding:11px 14px; font-size:13px; font-weight:500;
+  transition:background .15s;
+}
+.dropdown button:active{background:var(--chip-bg);}
+.dropdown button.active{color:var(--gold); font-weight:700;}
+
+.hero{
+  padding:40px 16px 16px; text-align:center;
+  animation:fadeUp .8s cubic-bezier(.16,1,.3,1) .1s both;
+}
+.hero .logo-wrap{
+  width:var(--logo-size); height:var(--logo-size); margin:0 auto 16px;
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+.hero .logo-wrap::before{
+  content:''; position:absolute; inset:-10px; border-radius:50%;
+  background:radial-gradient(circle, rgba(212,175,106,.16) 0%, transparent 72%);
+  animation:breathe 5s ease-in-out infinite;
+}
+.hero .logo-wrap img{width:100%; height:100%; object-fit:contain; position:relative;}
+.hero .logo-wrap .logo-fallback{
+  font-family:'Playfair Display',serif; font-size:20px; font-weight:600; letter-spacing:.02em;
+  border:1px solid var(--border-strong); border-radius:50%; width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.3; padding:8px;
+  position:relative;
+}
+.hero .date-row{display:flex; align-items:center; justify-content:center; gap:10px;}
+.hero .date-row .line{width:22px; height:1px; background:var(--border-strong);}
+.hero .date{font-size:12.5px; color:var(--text-dim); font-weight:500; letter-spacing:.03em;}
+
+.cats-wrap{position:relative; padding:18px 0 4px;}
+.cats{
+  display:flex; gap:10px; overflow-x:auto; padding:0 16px 10px;
+  scrollbar-width:none;
+}
+.cats::-webkit-scrollbar{display:none;}
+.cat-chip{
+  flex:0 0 auto; padding:10px 17px; border-radius:22px; background:var(--chip-bg);
+  border:1px solid var(--border); font-size:13px; font-weight:600; color:var(--text-dim);
+  white-space:nowrap; transition:background .3s, color .3s, border-color .3s, transform .15s;
+}
+.cat-chip:active{transform:scale(.96);}
+.cat-chip.active{background:linear-gradient(135deg, var(--gold-light), var(--gold-deep)); color:#171008; border-color:transparent; font-weight:700;}
+
+.products{
+  padding:10px 16px 70px; display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(var(--thumb-size), 1fr));
+  gap:14px;
+}
+.product-card{
+  background:var(--card-bg); border:1px solid var(--border); border-radius:16px; overflow:hidden;
+  text-align:left; transition:border-color .25s, transform .2s;
+  animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both;
+}
+.product-card:active{transform:scale(.97);}
+.product-card .thumb{
+  width:100%; aspect-ratio:1/1; background:var(--chip-bg); overflow:hidden; position:relative;
+}
+.product-card .thumb img{width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.16,1,.3,1);}
+.product-card:active .thumb img{transform:scale(1.06);}
+.product-card .info{padding:11px 13px 13px;}
+.product-card .name{font-family:'Playfair Display',serif; font-size:14px; font-weight:600; margin-bottom:5px; line-height:1.3;}
+.product-card .price{font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:.02em;}
+
+.empty-state{
+  grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-dim);
+  animation:fadeIn .5s ease;
+}
+.empty-state .t{font-family:'Playfair Display',serif; font-size:16px; font-weight:600; margin-bottom:5px; color:var(--text);}
+.empty-state .s{font-size:12.5px;}
+
+/* ---------- MODAL: product detail ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0); z-index:200;
+  display:none; align-items:flex-end; justify-content:center;
+  transition:background .35s ease;
+}
+.modal-overlay.open{display:flex; background:rgba(0,0,0,.72);}
+.sheet{
+  background:var(--panel-bg); border-radius:22px 22px 0 0; width:100%; max-width:520px;
+  max-height:88vh; overflow-y:auto; padding:0 0 28px;
+  transform:translateY(40px); opacity:0;
+  transition:transform .4s cubic-bezier(.16,1,.3,1), opacity .35s ease;
+  border-top:1px solid var(--border-strong);
+}
+.modal-overlay.open .sheet{transform:translateY(0); opacity:1;}
+.sheet .sheet-close{
+  position:sticky; top:14px; float:right; margin-right:14px; z-index:5;
+  width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,.55);
+  border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  font-size:14px;
+}
+.sheet .sheet-img{width:100%; aspect-ratio:4/3; background:var(--chip-bg); overflow:hidden;}
+.sheet .sheet-img img{width:100%; height:100%; object-fit:cover;}
+.sheet .sheet-body{padding:20px 22px 4px;}
+.sheet .sheet-name{font-family:'Playfair Display',serif; font-size:20px; font-weight:600; margin-bottom:16px;}
+.sheet .row{
+  display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);
+  font-size:13.5px; opacity:0; animation:fadeUp .4s ease both;
+}
+.sheet .row .l{color:var(--text-dim);}
+.sheet .row .r{font-weight:700;}
+.sheet .total-row{
+  display:flex; justify-content:space-between; padding:18px 0 6px; font-size:17px;
+}
+.sheet .total-row .l{font-weight:700; font-family:'Playfair Display',serif;}
+.sheet .total-row .r{font-weight:800; color:var(--gold);}
+
+/* ---------- ADMIN ---------- */
+#adminOverlay{
+  position:fixed; inset:0; z-index:300; display:none;
+  background:rgba(6,6,7,.32);
+  backdrop-filter:blur(18px) saturate(1.1); -webkit-backdrop-filter:blur(18px) saturate(1.1);
+  opacity:0; transition:opacity .3s ease;
+}
+#adminOverlay.open{display:block; opacity:1; pointer-events:auto;}
+.admin-panel{
+  position:absolute; inset:0; overflow-y:auto; padding:20px 16px 110px;
+  transform:translateY(10px); transition:transform .35s cubic-bezier(.16,1,.3,1);
+}
+#adminOverlay.open .admin-panel{transform:translateY(0);}
+.admin-topline{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+.admin-title{font-family:'Playfair Display',serif; font-size:18px; font-weight:600;}
+.admin-tabs{display:flex; gap:8px; margin-bottom:18px;}
+.admin-tab{
+  padding:9px 17px; border-radius:18px; font-size:12.5px; font-weight:700;
+  background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text-dim);
+  transition:all .25s;
+}
+.admin-tab.active{background:linear-gradient(135deg, var(--gold-light), var(--gold-deep)); color:#171008; border-color:transparent;}
+
+.admin-card{
+  background:rgba(23,21,18,.6); border:1px solid var(--border); border-radius:15px;
+  padding:17px; margin-bottom:14px;
+  animation:fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+}
+.admin-card h3{font-family:'Playfair Display',serif; font-size:14.5px; font-weight:600; margin-bottom:13px; color:var(--gold);}
+.field{margin-bottom:12px;}
+.field label{display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; font-weight:600; letter-spacing:.02em;}
+.field input[type=text], .field input[type=number], .field input[type=tel], .field select{
+  width:100%; padding:11px 13px; border-radius:10px; background:rgba(0,0,0,.4);
+  border:1px solid var(--border); color:var(--text); font-size:13.5px;
+  transition:border-color .2s;
+}
+.field input:focus, .field select:focus{outline:none; border-color:var(--border-strong);}
+.field input[type=color]{
+  width:44px; height:32px; border-radius:8px; border:1px solid var(--border); background:none; padding:0;
+}
+.color-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:11px;}
+.color-row .cl{font-size:13px; color:var(--text-dim);}
+.field input[type=range]{width:100%; accent-color:var(--gold);}
+.range-val{font-size:12px; color:var(--gold); font-weight:700;}
+.field-row{display:flex; gap:10px;}
+.field-row .field{flex:1;}
+.file-btn{
+  display:inline-block; padding:10px 15px; border-radius:10px; background:var(--chip-bg);
+  border:1px solid var(--border); font-size:12.5px; font-weight:600; margin-right:8px;
+  transition:border-color .2s;
+}
+.small-btn{
+  padding:9px 15px; border-radius:10px; background:var(--chip-bg); border:1px solid var(--border);
+  font-size:12.5px; font-weight:700; transition:transform .15s;
+}
+.small-btn:active{transform:scale(.96);}
+.danger-btn{color:#e0897a;}
+.accent-btn{background:linear-gradient(135deg, var(--gold-light), var(--gold-deep)); color:#171008; font-weight:800; border-color:transparent;}
+
+/* catalog admin */
+.cat-list-row{
+  display:flex; align-items:center; justify-content:space-between; padding:13px 15px;
+  background:rgba(23,21,18,.6); border:1px solid var(--border); border-radius:13px; margin-bottom:8px;
+  transition:border-color .2s, transform .15s;
+}
+.cat-list-row:active{transform:scale(.98);}
+.cat-list-row .cn{font-size:13.5px; font-weight:700; font-family:'Playfair Display',serif;}
+.cat-list-row .cc{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
+.cat-list-row .chev{color:var(--gold);}
+.admin-product-row{
+  display:flex; align-items:center; gap:11px; padding:10px; background:rgba(23,21,18,.6);
+  border:1px solid var(--border); border-radius:13px; margin-bottom:8px;
+}
+.admin-product-row img{width:46px; height:46px; border-radius:9px; object-fit:cover; background:var(--chip-bg);}
+.admin-product-row .apn{font-size:13px; font-weight:700; flex:1;}
+.admin-product-row .apt{font-size:12px; color:var(--gold); font-weight:700;}
+
+.price-line{display:flex; gap:8px; margin-bottom:8px; align-items:center;}
+.price-line input{flex:1;}
+.price-line .rm{width:32px; height:32px; border-radius:9px; background:var(--chip-bg); border:1px solid var(--border); flex:0 0 auto;}
+.auto-total{
+  display:flex; justify-content:space-between; align-items:center; padding:14px 0 4px; font-size:15px; font-weight:800;
+  border-top:1px dashed var(--border); margin-top:6px;
+}
+.auto-total .val{color:var(--gold); font-family:'Playfair Display',serif;}
+
+.save-bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:320;
+  display:flex; justify-content:center; padding:16px;
+  pointer-events:none;
+}
+.save-bar-inner{
+  pointer-events:auto; background:linear-gradient(135deg, var(--gold-light), var(--gold-deep)); color:#171008; font-weight:800; font-size:13.5px;
+  padding:14px 30px; border-radius:28px; box-shadow:0 14px 36px rgba(0,0,0,.55), 0 0 0 0 rgba(212,175,106,.5);
+  display:none; align-items:center; gap:8px;
+  animation:pulseGlow 2.4s ease-in-out infinite;
+}
+.save-bar-inner.show{display:flex;}
+@keyframes pulseGlow{
+  0%,100%{ box-shadow:0 14px 36px rgba(0,0,0,.55), 0 0 0 0 rgba(212,175,106,.35); }
+  50%{ box-shadow:0 14px 36px rgba(0,0,0,.55), 0 0 0 9px rgba(212,175,106,0); }
+}
+
+.save-choice-overlay{
+  position:fixed; inset:0; z-index:400; background:rgba(0,0,0,0);
+  display:none; align-items:center; justify-content:center; transition:background .3s;
+}
+.save-choice-overlay.open{display:flex; background:rgba(0,0,0,.65);}
+.save-choice-box{
+  background:var(--panel-bg); border:1px solid var(--border-strong); border-radius:18px; padding:24px; width:290px; text-align:center;
+  transform:scale(.92); opacity:0; transition:transform .3s cubic-bezier(.16,1,.3,1), opacity .3s;
+}
+.save-choice-overlay.open .save-choice-box{transform:scale(1); opacity:1;}
+.save-choice-box p{font-size:13.5px; color:var(--text-dim); margin-bottom:18px; font-family:'Playfair Display',serif; font-size:15px; color:var(--text);}
+.save-choice-box .opt{
+  width:100%; padding:13px; border-radius:11px; margin-bottom:8px; font-weight:700; font-size:13.5px;
+  background:var(--chip-bg); border:1px solid var(--border); transition:transform .15s;
+}
+.save-choice-box .opt:active{transform:scale(.97);}
+.save-choice-box .opt.primary{background:linear-gradient(135deg, var(--gold-light), var(--gold-deep)); color:#171008; border-color:transparent;}
+
+.pin-overlay{
+  position:fixed; inset:0; z-index:350; background:rgba(0,0,0,0);
+  display:none; align-items:center; justify-content:center; transition:background .3s;
+}
+.pin-overlay.open{display:flex; background:rgba(0,0,0,.78);}
+.pin-box{
+  background:var(--panel-bg); border:1px solid var(--border-strong); border-radius:18px; padding:28px; width:270px; text-align:center;
+  transform:scale(.92); opacity:0; transition:transform .3s cubic-bezier(.16,1,.3,1), opacity .3s;
+}
+.pin-overlay.open .pin-box{transform:scale(1); opacity:1;}
+.pin-box .pin-icon{
+  width:46px; height:46px; border-radius:50%; margin:0 auto 14px; border:1px solid var(--border-strong);
+  display:flex; align-items:center; justify-content:center;
+}
+.pin-box .pin-icon svg{width:19px; height:19px; stroke:var(--gold);}
+.pin-box p{font-size:13px; color:var(--text-dim); margin-bottom:16px;}
+.pin-box input{
+  width:100%; padding:13px; text-align:center; letter-spacing:10px; font-size:20px; font-weight:700;
+  background:rgba(0,0,0,.4); border:1px solid var(--border); border-radius:11px; color:var(--gold); margin-bottom:12px;
+}
+.pin-box input:focus{outline:none; border-color:var(--border-strong);}
+.pin-hint{font-size:10.5px; color:var(--text-dim); margin-top:-6px; margin-bottom:12px;}
+.pin-err{color:#e0897a; font-size:12px; height:14px; margin-bottom:6px;}
+
+.form-photo-preview{
+  width:92px; height:92px; border-radius:12px; background:var(--chip-bg); overflow:hidden;
+  display:flex; align-items:center; justify-content:center; margin-bottom:9px; border:1px solid var(--border);
+}
+.form-photo-preview img{width:100%; height:100%; object-fit:cover;}
+.back-row{display:flex; align-items:center; gap:11px; margin-bottom:16px;}
+.back-btn{width:33px; height:33px; border-radius:50%; background:rgba(255,255,255,.05); border:1px solid var(--border); display:flex; align-items:center; justify-content:center;}
+.back-btn svg{width:15px; height:15px; stroke:var(--gold);}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important;}
+}
+
+/* ---------- PROFESSIONAL UI UPGRADE ---------- */
+:root{--shadow:0 18px 50px rgba(0,0,0,.28);--radius:18px}
+body{background:radial-gradient(circle at 15% 0%,rgba(212,175,106,.055),transparent 30%),var(--bg);}
+.topbar{padding:12px clamp(12px,2vw,28px);}
+.hero{padding:clamp(28px,5vw,56px) 16px 18px;}
+.hero .logo-wrap{width:min(var(--logo-size),38vw);height:min(var(--logo-size),38vw);}
+.cats-wrap{position:sticky;top:61px;z-index:20;background:rgba(10,10,11,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.cats{max-width:1500px;margin:auto;padding:10px clamp(12px,2vw,28px) 11px;}
+.products{max-width:1500px;margin:auto;padding:18px clamp(12px,2vw,28px) 90px;grid-template-columns:repeat(auto-fill,minmax(clamp(170px,18vw,270px),1fr));gap:18px;}
+.product-card{box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.product-card:hover{transform:translateY(-3px);border-color:var(--border-strong);}
+.product-card .thumb{aspect-ratio:4/3;}
+.product-card .thumb img{object-fit:contain;padding:10px;}
+.admin-panel{max-width:1100px;margin:auto;left:50%;right:auto;width:min(100%,1100px);transform:translate(-50%,10px);padding:24px clamp(14px,3vw,34px) 120px;}
+#adminOverlay.open .admin-panel{transform:translate(-50%,0);}
+.admin-card{box-shadow:var(--shadow);}
+.admin-product-row{min-height:68px;}
+.admin-product-row .actions{display:flex;gap:6px;}
+.action-btn{padding:8px 10px;border-radius:9px;border:1px solid var(--border);background:var(--chip-bg);font-size:11px;font-weight:800;}
+.action-btn.edit{color:var(--gold)}.action-btn.delete{color:#e0897a}
+.cat-list-row{cursor:pointer;}
+.cat-actions{display:flex;gap:6px;align-items:center}.cat-actions button{position:relative;z-index:2}
+.form-photo-preview{width:min(180px,45vw);height:min(140px,35vw);}
+input,select,button{touch-action:manipulation;}
+@media (max-width:600px){
+ .topbar{position:sticky;top:0}.pill-btn{padding:7px 10px;font-size:11px}.icon-btn{width:35px;height:35px}
+ .products{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding-left:8px;padding-right:8px}
+ .product-card .info{padding:9px 10px 11px}.product-card .name{font-size:13px}.product-card .price{font-size:11.5px}
+ .cats-wrap{top:60px}.admin-tabs{overflow-x:auto}.admin-tab{flex:0 0 auto}
+ .field-row{flex-direction:column;gap:0}.sheet{max-height:92vh}.sheet .sheet-body{padding:18px}
+}
+@media (min-width:1400px){.products{grid-template-columns:repeat(5,minmax(0,1fr));}}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-ring">
+    <div class="splash-logo-inner" id="splashLogoWrap">
+      <div class="splash-wordmark gold-text">İNEGÖL<br>OFİS</div>
+    </div>
+  </div>
+  <div class="splash-hint" data-i18n="tapToEnter">DOKUNARAK DEVAM EDİN</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="left">
+      <button class="pill-btn" id="langBtn">🌐 <span id="langLabel">TR</span></button>
+      <div class="dropdown" id="langDropdown">
+        <button data-lang="tr">Türkçe</button>
+        <button data-lang="en">English</button>
+      </div>
+      <button class="pill-btn" id="curBtn"><span id="curLabel">₺ TL</span></button>
+      <div class="dropdown" id="curDropdown">
+        <button data-cur="TRY">₺ TL</button>
+        <button data-cur="USD">$ Dolar</button>
+        <button data-cur="EUR">€ Euro</button>
+      </div>
+    </div>
+    <div class="right">
+      <button class="icon-btn" id="pdfBtn" title="PDF indir">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" title="Yönetim">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="logo-wrap" id="heroLogoWrap">
+      <div class="logo-fallback gold-text">İNEGÖL<br>OFİS</div>
+    </div>
+    <div class="date-row"><span class="line"></span><span class="date" id="dateLabel"></span><span class="line"></span></div>
+  </div>
+
+  <div class="cats-wrap">
+    <div class="cats" id="catsRow"></div>
+  </div>
+  <div class="products" id="productsGrid"></div>
+</div>
+
+<!-- PRODUCT DETAIL SHEET -->
+<div class="modal-overlay" id="productOverlay">
+  <div class="sheet">
+    <button class="sheet-close" id="sheetClose">✕</button>
+    <div class="sheet-img"><img id="sheetImg" src="" alt=""></div>
+    <div class="sheet-body">
+      <div class="sheet-name" id="sheetName"></div>
+      <div id="sheetRows"></div>
+      <div class="total-row">
+        <span class="l" data-i18n="total">Toplam</span>
+        <span class="r" id="sheetTotal"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN -->
+<div class="pin-overlay" id="pinOverlay">
+  <div class="pin-box">
+    <div class="pin-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <p data-i18n="enterPin">Yönetim paneli için PIN girin</p>
+    <input type="tel" id="pinInput" maxlength="8" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="pin-hint" id="pinHint">4–8 haneli PIN</div>
+    <div class="pin-err" id="pinErr"></div>
+    <button class="small-btn accent-btn" style="width:100%" id="pinSubmit" data-i18n="enter">Giriş</button>
+  </div>
+</div>
+
+<!-- SAVE CHOICE -->
+<div class="save-choice-overlay" id="saveChoiceOverlay">
+  <div class="save-choice-box">
+    <p data-i18n="savedQ">Değişiklikler kaydedildi</p>
+    <button class="opt primary" id="saveExitBtn" data-i18n="saveExit">Kaydet ve Çık</button>
+    <button class="opt" id="saveContinueBtn" data-i18n="saveContinue">Kaydet ve Devam Et</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="adminOverlay">
+  <div class="admin-panel">
+    <div class="admin-topline">
+      <div class="admin-title" data-i18n="adminTitle">Yönetim Paneli</div>
+      <button class="icon-btn" id="adminClose">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="general" data-i18n="tabGeneral">Genel</button>
+      <button class="admin-tab" data-tab="catalog" data-i18n="tabCatalog">Katalog</button>
+    </div>
+
+    <!-- GENERAL TAB -->
+    <div id="tabGeneral">
+      <div class="admin-card">
+        <h3 data-i18n="rates">Kur Ayarları (₺ baz alınır)</h3>
+        <div class="field-row">
+          <div class="field">
+            <label>1 USD = ? ₺</label>
+            <input type="number" id="rateUsd" step="0.01">
+          </div>
+          <div class="field">
+            <label>1 EUR = ? ₺</label>
+            <input type="number" id="rateEur" step="0.01">
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 data-i18n="logoSettings">Logo</h3>
+        <div class="form-photo-preview" id="adminLogoPreview"><span style="font-size:10px;color:var(--text-dim)">Logo yok</span></div>
+        <label class="file-btn">
+          <span data-i18n="chooseLogo">Logo Seç</span>
+          <input type="file" id="logoInput" accept="image/*" style="display:none">
+        </label>
+        <button class="small-btn danger-btn" id="logoRemoveBtn" data-i18n="removeLogo">Logoyu Kaldır</button>
+        <div class="field" style="margin-top:14px;">
+          <label data-i18n="logoSize">Logo Boyutu: <span class="range-val" id="logoSizeVal">150px</span></label>
+          <input type="range" id="logoSizeRange" min="60" max="260" value="150">
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 data-i18n="colors">Renkler</h3>
+        <div class="color-row"><span class="cl" data-i18n="colBg">Arka Plan</span><input type="color" id="colBg"></div>
+        <div class="color-row"><span class="cl" data-i18n="colAccent">Vurgu Rengi</span><input type="color" id="colAccent"></div>
+        <div class="color-row"><span class="cl" data-i18n="colText">Yazı Rengi</span><input type="color" id="colText"></div>
+        <div class="color-row"><span class="cl" data-i18n="colCard">Kart Rengi</span><input type="color" id="colCard"></div>
+        <div class="color-row"><span class="cl" data-i18n="colChip">Kategori Rengi</span><input type="color" id="colChip"></div>
+      </div>
+
+      <div class="admin-card">
+        <h3 data-i18n="imgSize">Ürün Görseli Boyutu</h3>
+        <div class="field">
+          <label>Min genişlik: <span class="range-val" id="thumbSizeVal">150px</span></label>
+          <input type="range" id="thumbSizeRange" min="100" max="260" value="150">
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3 data-i18n="pdfFormat">PDF Formatı</h3>
+        <div class="field">
+          <select id="pdfFormatSelect">
+            <option value="simple" data-i18n="pdfSimple">Basit (isim + toplam fiyat)</option>
+            <option value="detailed" data-i18n="pdfDetailed">Detaylı (ölçü ve fiyat kalemleri)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Veri Yönetimi</h3>
+        <button class="small-btn" id="exportDataBtn" style="margin-right:6px">↧ <span data-i18n="exportData">Verileri Dışa Aktar</span></button>
+        <label class="small-btn" style="display:inline-block">↥ <span data-i18n="importData">Verileri İçe Aktar</span><input type="file" id="importDataInput" accept="application/json" style="display:none"></label>
+      </div>
+
+      <div class="admin-card">
+        <h3 data-i18n="pinSettings">Yönetim PIN</h3>
+        <div class="field">
+          <label data-i18n="newPin">Yeni PIN</label>
+          <input type="text" id="newPinInput" inputmode="numeric" maxlength="8">
+        </div>
+      </div>
+    </div>
+
+    <!-- CATALOG TAB -->
+    <div id="tabCatalog" style="display:none">
+      <div id="catalogCategoryList"></div>
+      <button class="small-btn accent-btn" id="addCategoryBtn" style="width:100%; margin-top:8px;">+ <span data-i18n="addCategory">Kategori Ekle</span></button>
+    </div>
+
+    <!-- Category products (admin) -->
+    <div id="tabCategoryProducts" style="display:none">
+      <div class="back-row">
+        <button class="back-btn" id="backToCategories"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="admin-title" id="catProductsTitle" style="font-size:15px;"></div>
+      </div>
+      <div id="catalogProductList"></div>
+      <button class="small-btn accent-btn" id="addProductBtn" style="width:100%; margin-top:8px;">+ <span data-i18n="addProduct">Ürün Ekle</span></button>
+    </div>
+
+    <!-- Add/Edit product form -->
+    <div id="tabProductForm" style="display:none">
+      <div class="back-row">
+        <button class="back-btn" id="backToCatProducts"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <div class="admin-title" data-i18n="newProduct" style="font-size:15px;">Yeni Ürün</div>
+      </div>
+      <div class="admin-card">
+        <div class="form-photo-preview" id="prodPhotoPreview"><span style="font-size:10px;color:var(--text-dim)">Foto yok</span></div>
+        <label class="file-btn">
+          <span data-i18n="choosePhoto">Fotoğraf Seç</span>
+          <input type="file" id="prodPhotoInput" accept="image/*" style="display:none">
+        </label>
+        <div class="field" style="margin-top:12px;">
+          <label data-i18n="productName">Ürün Adı</label>
+          <input type="text" id="prodNameInput">
+        </div>
+        <h3 style="margin-top:14px;" data-i18n="priceLines">Ölçü / Fiyat Kalemleri (₺)</h3>
+        <div id="priceLinesWrap"></div>
+        <button class="small-btn" id="addPriceLineBtn">+ <span data-i18n="addLine">Kalem Ekle</span></button>
+        <div class="auto-total">
+          <span data-i18n="autoTotal">Toplam</span>
+          <span class="val" id="prodAutoTotal">₺0</span>
+        </div>
+        <button class="small-btn accent-btn" id="saveProductBtn" style="width:100%; margin-top:14px;" data-i18n="saveProduct">Ürünü Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-bar" id="saveBar">
+  <div class="save-bar-inner" id="saveBarInner">
+    <span data-i18n="save">Kaydet</span>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ I18N ============ */
+var I18N = {
+  tr:{
+    tapToEnter:"DOKUNARAK DEVAM EDİN", total:"Toplam", enterPin:"Yönetim paneli için PIN girin", enter:"Giriş",
+    savedQ:"Değişiklikler kaydedildi", saveExit:"Kaydet ve Çık", saveContinue:"Kaydet ve Devam Et",
+    adminTitle:"Yönetim Paneli", tabGeneral:"Genel", tabCatalog:"Katalog", rates:"Kur Ayarları (₺ baz alınır)",
+    logoSettings:"Logo", chooseLogo:"Logo Seç", removeLogo:"Logoyu Kaldır", logoSize:"Logo Boyutu",
+    colors:"Renkler", colBg:"Arka Plan", colAccent:"Vurgu Rengi", colText:"Yazı Rengi", colCard:"Kart Rengi", colChip:"Kategori Rengi",
+    imgSize:"Ürün Görseli Boyutu", pdfFormat:"PDF Formatı", pdfSimple:"Basit (isim + toplam fiyat)", pdfDetailed:"Detaylı (ölçü ve fiyat kalemleri)",
+    pinSettings:"Yönetim PIN", newPin:"Yeni PIN", addCategory:"Kategori Ekle", addProduct:"Ürün Ekle",
+    newProduct:"Yeni Ürün", choosePhoto:"Fotoğraf Seç", productName:"Ürün Adı", priceLines:"Ölçü / Fiyat Kalemleri (₺)",
+    addLine:"Kalem Ekle", autoTotal:"Toplam", saveProduct:"Ürünü Kaydet", save:"Kaydet", noProducts:"Bu kategoride henüz ürün yok",
+    noProductsSub:"Yönetim panelinden ekleyebilirsiniz.", newCategoryPrompt:"Yeni kategori adı", wrongPin:"Hatalı PIN",
+    sizeLabel:"Ölçü", priceLabel:"Fiyat", edit:"Düzenle", delete:"Sil", confirmDelete:"Bu ürünü silmek istediğinize emin misiniz?", confirmCatDelete:"Bu kategoriyi ve içindeki ürünleri silmek istediğinize emin misiniz?", categoryEdit:"Kategori adını düzenle", saveSuccess:"Değişiklikler kaydedildi.", backup:"Yedek Al", restore:"Yedek Yükle", exportData:"Verileri Dışa Aktar", importData:"Verileri İçe Aktar"
+  },
+  en:{
+    tapToEnter:"TAP TO CONTINUE", total:"Total", enterPin:"Enter PIN for admin panel", enter:"Enter",
+    savedQ:"Changes saved", saveExit:"Save & Exit", saveContinue:"Save & Continue",
+    adminTitle:"Admin Panel", tabGeneral:"General", tabCatalog:"Catalog", rates:"Exchange Rates (₺ base)",
+    logoSettings:"Logo", chooseLogo:"Choose Logo", removeLogo:"Remove Logo", logoSize:"Logo Size",
+    colors:"Colors", colBg:"Background", colAccent:"Accent Color", colText:"Text Color", colCard:"Card Color", colChip:"Category Color",
+    imgSize:"Product Image Size", pdfFormat:"PDF Format", pdfSimple:"Simple (name + total price)", pdfDetailed:"Detailed (size and price lines)",
+    pinSettings:"Admin PIN", newPin:"New PIN", addCategory:"Add Category", addProduct:"Add Product",
+    newProduct:"New Product", choosePhoto:"Choose Photo", productName:"Product Name", priceLines:"Size / Price Lines (₺)",
+    addLine:"Add Line", autoTotal:"Total", saveProduct:"Save Product", save:"Save", noProducts:"No products in this category yet",
+    noProductsSub:"You can add them from the admin panel.", newCategoryPrompt:"New category name", wrongPin:"Wrong PIN",
+    sizeLabel:"Size", priceLabel:"Price", edit:"Edit", delete:"Delete", confirmDelete:"Delete this product?", confirmCatDelete:"Delete this category and its products?", categoryEdit:"Edit category name", saveSuccess:"Changes saved.", backup:"Backup", restore:"Restore", exportData:"Export Data", importData:"Import Data"
+  }
+};
+
+function $(id){ return document.getElementById(id); }
+function svgPlaceholder(label,color){
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="'+color+'"/><text x="150" y="155" font-family="Georgia" font-size="20" fill="#f3efe4" text-anchor="middle">'+label+'</text></svg>';
+  return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
+}
+
+var state = {
+  lang:'tr',
+  currency:'TRY',
+  pin:'1234',
+  rates:{ USD:34.5, EUR:37.2 },
+  settings:{
+    bg:'#0a0a0b', accent:'#d4af6a', text:'#f3efe4', card:'#161410', chip:'#1a1712',
+    logo:null, logoSize:150, thumbSize:150, pdfFormat:'detailed'
+  },
+  categories:[
+    {id:'vip', tr:'VİP Makam Takımı', en:'VIP Executive Set'},
+    {id:'makam', tr:'Makam Takımları', en:'Executive Sets'},
+    {id:'yonetici', tr:'Yönetici Takımları', en:'Manager Sets'},
+    {id:'personel', tr:'Personel Takımları', en:'Staff Sets'},
+    {id:'toplanti', tr:'Toplantı Masaları', en:'Meeting Tables'},
+    {id:'workstation', tr:'Workstation', en:'Workstation'},
+    {id:'dolap', tr:'Dolaplar', en:'Cabinets'},
+    {id:'keson', tr:'Kesonlar', en:'Pedestals'},
+    {id:'kasa', tr:'Kasalar', en:'Safes'},
+    {id:'oturma', tr:'Oturma Grupları', en:'Seating Groups'},
+    {id:'koltuk', tr:'Ofis Koltukları', en:'Office Chairs'},
+    {id:'fileli', tr:'Fileli Ofis Koltukları', en:'Mesh Office Chairs'},
+    {id:'lobi', tr:'Lobi Koltukları', en:'Lobby Chairs'},
+    {id:'proje', tr:'Proje Koltukları', en:'Project Chairs'},
+    {id:'bar', tr:'Bar Koltukları', en:'Bar Stools'},
+    {id:'sehpa', tr:'Sehpalar', en:'Coffee Tables'},
+    {id:'aksesuar', tr:'Aksesuarlar', en:'Accessories'}
+  ],
+  products:[
+    {id:'p1', catId:'vip', name:'Ambassador VIP Takım', photo:svgPlaceholder('VIP','#2b2013'),
+      lines:[{size:'Masa 200x100', price:18500},{size:'Keson', price:4200},{size:'Kitaplık', price:6100}]},
+    {id:'p2', catId:'makam', name:'Prestij Makam Takımı', photo:svgPlaceholder('Makam','#241d12'),
+      lines:[{size:'Masa 180x90', price:11200},{size:'Yardımcı Ünite', price:3400}]},
+    {id:'p3', catId:'toplanti', name:'Ovalis Toplantı Masası', photo:svgPlaceholder('Masa','#1f1911'),
+      lines:[{size:'240 cm', price:9800},{size:'320 cm', price:13200}]},
+    {id:'p4', catId:'koltuk', name:'Comfort Ofis Koltuğu', photo:svgPlaceholder('Koltuk','#1c170f'),
+      lines:[{size:'Standart', price:2650}]}
+  ],
+  currentCat:'vip'
+};
+
+var unsavedChanges = false;
+function t(key){ return (I18N[state.lang] && I18N[state.lang][key]) || key; }
+
+/* ============ overlay helpers ============ */
+function openOverlay(id){ var el = $(id); if(el) el.classList.add('open'); }
+function closeOverlay(id){ var el = $(id); if(el) el.classList.remove('open'); }
+
+/* ============ static i18n ============ */
+function applyStaticI18n(){
+  var nodes = document.querySelectorAll('[data-i18n]');
+  for(var i=0;i<nodes.length;i++){
+    var key = nodes[i].getAttribute('data-i18n');
+    if(I18N[state.lang][key]) nodes[i].textContent = I18N[state.lang][key];
+  }
+}
+
+/* ============ THEME ============ */
+function applyTheme(){
+  var r = document.documentElement.style;
+  r.setProperty('--bg', state.settings.bg);
+  r.setProperty('--gold', state.settings.accent);
+  r.setProperty('--text', state.settings.text);
+  r.setProperty('--card-bg', state.settings.card);
+  r.setProperty('--panel-bg', state.settings.card);
+  r.setProperty('--chip-bg', state.settings.chip);
+  r.setProperty('--logo-size', state.settings.logoSize+'px');
+  r.setProperty('--thumb-size', state.settings.thumbSize+'px');
+}
+
+function renderLogos(){
+  var wrap1 = $('splashLogoWrap'), wrap2 = $('heroLogoWrap');
+  [wrap1, wrap2].forEach(function(w){
+    if(!w) return;
+    if(state.settings.logo){
+      w.innerHTML = '<img src="'+state.settings.logo+'" alt="logo">';
+    } else {
+      w.innerHTML = '<div class="'+(w.id==='splashLogoWrap'?'splash-wordmark':'logo-fallback')+' gold-text">İNEGÖL<br>OFİS</div>';
+    }
+  });
+  var preview = $('adminLogoPreview');
+  if(preview) preview.innerHTML = state.settings.logo ? '<img src="'+state.settings.logo+'">' : '<span style="font-size:10px;color:var(--text-dim)">Logo yok</span>';
+}
+
+/* ============ DATE ============ */
+function renderDate(){
+  var now = new Date();
+  var monthsTr = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var str;
+  if(state.lang==='tr'){
+    str = now.getDate()+' '+monthsTr[now.getMonth()]+' '+now.getFullYear();
+  } else {
+    str = now.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  }
+  $('dateLabel').textContent = str;
+}
+
+/* ============ CURRENCY ============ */
+function convert(tlAmount){
+  if(state.currency==='TRY') return tlAmount;
+  if(state.currency==='USD') return tlAmount / state.rates.USD;
+  return tlAmount / state.rates.EUR;
+}
+function symbol(){ return state.currency==='TRY' ? '₺' : (state.currency==='USD' ? '$' : '€'); }
+function fmt(tlAmount){
+  var v = convert(tlAmount);
+  return symbol() + ' ' + v.toLocaleString(state.lang==='tr'?'tr-TR':'en-US', {maximumFractionDigits: state.currency==='TRY'?0:2});
+}
+function productTotal(p){
+  return p.lines.reduce(function(s,l){ return s+Number(l.price||0); }, 0);
+}
+
+/* ============ CATEGORIES ROW ============ */
+function renderCats(){
+  var row = $('catsRow');
+  row.innerHTML = '';
+  state.categories.forEach(function(c){
+    var btn = document.createElement('button');
+    btn.className = 'cat-chip' + (c.id===state.currentCat ? ' active':'');
+    btn.textContent = state.lang==='tr' ? c.tr : c.en;
+    btn.addEventListener('click', function(){
+      if(state.currentCat !== c.id){
+        state.currentCat = c.id;
+        renderCats();
+        renderProducts();
+      }
+    });
+    row.appendChild(btn);
+  });
+}
+
+/* ============ PRODUCT GRID ============ */
+function renderProducts(){
+  var grid = $('productsGrid');
+  grid.innerHTML = '';
+  var items = state.products.filter(function(p){ return p.catId===state.currentCat; });
+  if(items.length===0){
+    grid.innerHTML = '<div class="empty-state"><div class="t">'+t('noProducts')+'</div><div class="s">'+t('noProductsSub')+'</div></div>';
+    return;
+  }
+  items.forEach(function(p, idx){
+    var card = document.createElement('button');
+    card.className='product-card';
+    card.style.animationDelay = (idx*45)+'ms';
+    card.innerHTML =
+      '<div class="thumb"><img src="'+p.photo+'"></div>'+
+      '<div class="info">'+
+        '<div class="name">'+p.name+'</div>'+
+        '<div class="price">'+fmt(productTotal(p))+'</div>'+
+      '</div>';
+    card.addEventListener('click', function(){ openProductSheet(p); });
+    grid.appendChild(card);
+  });
+}
+
+/* ============ PRODUCT DETAIL SHEET ============ */
+function openProductSheet(p){
+  $('sheetImg').src = p.photo;
+  $('sheetName').textContent = p.name;
+  var rows = $('sheetRows');
+  rows.innerHTML = '';
+  p.lines.forEach(function(l, i){
+    var row = document.createElement('div');
+    row.className='row';
+    row.style.animationDelay = (i*60)+'ms';
+    row.innerHTML = '<span class="l">'+l.size+'</span><span class="r">'+fmt(l.price)+'</span>';
+    rows.appendChild(row);
+  });
+  $('sheetTotal').textContent = fmt(productTotal(p));
+  openOverlay('productOverlay');
+}
+$('sheetClose').addEventListener('click', function(){ closeOverlay('productOverlay'); });
+$('productOverlay').addEventListener('click', function(e){ if(e.target.id==='productOverlay') closeOverlay('productOverlay'); });
+
+/* ============ SPLASH ============ */
+$('splash').addEventListener('click', function(){
+  $('splash').classList.add('hidden');
+  $('app').classList.add('visible');
+});
+
+/* ============ LANG / CURRENCY DROPDOWNS ============ */
+function toggleDropdown(id){
+  var all = document.querySelectorAll('.dropdown');
+  for(var i=0;i<all.length;i++){ if(all[i].id!==id) all[i].classList.remove('open'); }
+  $(id).classList.toggle('open');
+}
+$('langBtn').addEventListener('click', function(e){ e.stopPropagation(); toggleDropdown('langDropdown'); });
+$('curBtn').addEventListener('click', function(e){ e.stopPropagation(); toggleDropdown('curDropdown'); });
+document.addEventListener('click', function(){
+  var all = document.querySelectorAll('.dropdown');
+  for(var i=0;i<all.length;i++){ all[i].classList.remove('open'); }
+});
+
+var langButtons = document.querySelectorAll('#langDropdown button');
+for(var li=0; li<langButtons.length; li++){
+  langButtons[li].addEventListener('click', function(){
+    state.lang = this.dataset.lang;
+    $('langLabel').textContent = state.lang.toUpperCase();
+    document.documentElement.lang = state.lang;
+    applyStaticI18n();
+    renderDate();
+    renderCats();
+    renderProducts();
+  });
+}
+var curButtons = document.querySelectorAll('#curDropdown button');
+for(var ci=0; ci<curButtons.length; ci++){
+  curButtons[ci].addEventListener('click', function(){
+    state.currency = this.dataset.cur;
+    $('curLabel').textContent = this.textContent;
+    renderProducts();
+  });
+}
+
+/* ============ PIN / ADMIN OPEN ============ */
+$('settingsBtn').addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation();
+  $('pinInput').value='';
+  $('pinErr').textContent='';
+  openOverlay('pinOverlay');
+  setTimeout(function(){ $('pinInput').focus(); }, 150);
+});
+$('pinSubmit').addEventListener('click', submitPin);
+$('pinInput').addEventListener('keydown', function(e){ if(e.key==='Enter') submitPin(); });
+$('pinInput').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,8);});
+function submitPin(){
+  var val=$('pinInput').value.trim();
+  if(/^\d{4,8}$/.test(val) && val===String(state.pin)){
+    $('pinInput').value=''; $('pinErr').textContent=''; closeOverlay('pinOverlay'); openAdmin();
+  } else { $('pinErr').textContent=t('wrongPin'); }
+}
+function openAdmin(){
+  try { normalizeState(); loadAdminFieldsFromState(); openOverlay('adminOverlay'); showAdminTab('general'); refreshSaveBarVisibility(); }
+  catch(err) { console.error('Admin open error:',err); openOverlay('adminOverlay'); }
+}
+
+$('adminClose').addEventListener('click', attemptCloseAdmin);
+function attemptCloseAdmin(){
+  if(unsavedChanges){ openOverlay('saveChoiceOverlay'); }
+  else { closeOverlay('adminOverlay'); }
+}
+
+var adminTabs = document.querySelectorAll('.admin-tab');
+for(var ati=0; ati<adminTabs.length; ati++){
+  adminTabs[ati].addEventListener('click', function(){ showAdminTab(this.dataset.tab); });
+}
+function showAdminTab(name){
+  var tabs = document.querySelectorAll('.admin-tab');
+  for(var i=0;i<tabs.length;i++){ tabs[i].classList.toggle('active', tabs[i].dataset.tab===name); }
+  $('tabGeneral').style.display = name==='general' ? 'block':'none';
+  $('tabCatalog').style.display = name==='catalog' ? 'block':'none';
+  $('tabCategoryProducts').style.display='none';
+  $('tabProductForm').style.display='none';
+  if(name==='catalog') renderCatalogCategoryList();
+}
+
+/* ============ ADMIN: GENERAL FIELDS ============ */
+function loadAdminFieldsFromState(){
+  $('rateUsd').value = state.rates.USD;
+  $('rateEur').value = state.rates.EUR;
+  $('logoSizeRange').value = state.settings.logoSize;
+  $('logoSizeVal').textContent = state.settings.logoSize+'px';
+  $('thumbSizeRange').value = state.settings.thumbSize;
+  $('thumbSizeVal').textContent = state.settings.thumbSize+'px';
+  $('colBg').value = state.settings.bg;
+  $('colAccent').value = state.settings.accent;
+  $('colText').value = state.settings.text;
+  $('colCard').value = state.settings.card;
+  $('colChip').value = state.settings.chip;
+  $('pdfFormatSelect').value = state.settings.pdfFormat;
+  $('newPinInput').value = '';
+  renderLogos();
+}
+function readImageCompressed(file,maxW,maxH,quality,done){
+  var reader=new FileReader(); reader.onload=function(){var img=new Image();img.onload=function(){var scale=Math.min(1,maxW/img.width,maxH/img.height),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));var ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);done(c.toDataURL('image/jpeg',quality));};img.src=reader.result;};reader.readAsDataURL(file);
+}
+function markDirty(){ unsavedChanges = true; try{saveToStorage();}catch(e){} }
+
+$('rateUsd').addEventListener('input', function(e){ state.rates.USD = Number(e.target.value)||0; renderProducts(); markDirty(); });
+$('rateEur').addEventListener('input', function(e){ state.rates.EUR = Number(e.target.value)||0; renderProducts(); markDirty(); });
+
+$('logoInput').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  readImageCompressed(file,1200,1200,.88,function(data){state.settings.logo=data;renderLogos();markDirty();});
+});
+$('logoRemoveBtn').addEventListener('click', function(){ state.settings.logo = null; renderLogos(); markDirty(); });
+$('logoSizeRange').addEventListener('input', function(e){
+  state.settings.logoSize = Number(e.target.value);
+  $('logoSizeVal').textContent = state.settings.logoSize+'px';
+  applyTheme(); markDirty();
+});
+$('thumbSizeRange').addEventListener('input', function(e){
+  state.settings.thumbSize = Number(e.target.value);
+  $('thumbSizeVal').textContent = state.settings.thumbSize+'px';
+  applyTheme(); markDirty();
+});
+[['colBg','bg'],['colAccent','accent'],['colText','text'],['colCard','card'],['colChip','chip']].forEach(function(pair){
+  $(pair[0]).addEventListener('input', function(e){
+    state.settings[pair[1]] = e.target.value;
+    applyTheme(); markDirty();
+  });
+});
+$('pdfFormatSelect').addEventListener('change', function(e){ state.settings.pdfFormat = e.target.value; markDirty(); });
+$('newPinInput').addEventListener('input', function(e){ if(e.target.value.trim()!=='') { state.pin = e.target.value.trim(); markDirty(); } });
+
+/* ============ SAVE BAR / SAVE CHOICE ============ */
+$('saveBarInner').addEventListener('click', function(){ openOverlay('saveChoiceOverlay'); });
+/* Save handlers are defined in persistence section. */
+
+/* always show the save bar while inside admin so the pin/action is discoverable */
+function refreshSaveBarVisibility(){
+  var adminOpen = $('adminOverlay').classList.contains('open');
+  $('saveBarInner').classList.toggle('show', adminOpen);
+}
+var adminOverlayObserver = new MutationObserver(refreshSaveBarVisibility);
+adminOverlayObserver.observe($('adminOverlay'), {attributes:true, attributeFilter:['class']});
+
+/* ============ ADMIN: CATALOG - CATEGORIES ============ */
+var activeAdminCatId = null;
+
+function renderCatalogCategoryList(){
+  var wrap=$('catalogCategoryList'); wrap.innerHTML='';
+  state.categories.forEach(function(c,idx){
+    var count=state.products.filter(function(p){return p.catId===c.id;}).length;
+    var row=document.createElement('div'); row.className='cat-list-row'; row.style.animationDelay=(idx*30)+'ms';
+    var title=state.lang==='tr'?c.tr:c.en;
+    row.innerHTML='<div style="flex:1;cursor:pointer"><div class="cn"></div><div class="cc">'+count+' ürün</div></div><div class="cat-actions"><button class="action-btn edit">✎</button><button class="action-btn delete">✕</button><span class="chev">›</span></div>';
+    row.querySelector('.cn').textContent=title;
+    row.querySelector('div').addEventListener('click',function(){openCategoryProducts(c.id);});
+    row.querySelector('.edit').addEventListener('click',function(e){e.stopPropagation(); editCategory(c.id);});
+    row.querySelector('.delete').addEventListener('click',function(e){e.stopPropagation(); deleteCategory(c.id);});
+    wrap.appendChild(row);
+  });
+}
+function editCategory(catId){
+  var c=state.categories.find(function(x){return x.id===catId;}); if(!c)return;
+  var name=prompt(t('categoryEdit'),c.tr); if(!name||!name.trim())return;
+  c.tr=name.trim(); c.en=name.trim(); markDirty(); renderCatalogCategoryList(); renderCats();
+}
+function deleteCategory(catId){
+  var c=state.categories.find(function(x){return x.id===catId;}); if(!c)return;
+  if(!confirm(t('confirmCatDelete')))return;
+  state.categories=state.categories.filter(function(x){return x.id!==catId;});
+  state.products=state.products.filter(function(p){return p.catId!==catId;});
+  if(state.categories.length){state.currentCat=state.categories[0].id;activeAdminCatId=null;}
+  markDirty(); renderCatalogCategoryList(); renderCats(); renderProducts();
+}
+$('addCategoryBtn').addEventListener('click', function(){
+  var name = prompt(t('newCategoryPrompt'));
+  if(name && name.trim()){
+    var id = 'cat_' + Date.now();
+    state.categories.push({id:id, tr:name.trim(), en:name.trim()});
+    renderCatalogCategoryList();
+    renderCats();
+    markDirty();
+  }
+});
+
+function openCategoryProducts(catId){
+  activeAdminCatId = catId;
+  var cat = state.categories.filter(function(c){ return c.id===catId; })[0];
+  $('catProductsTitle').textContent = state.lang==='tr'?cat.tr:cat.en;
+  $('tabCatalog').style.display='none';
+  $('tabCategoryProducts').style.display='block';
+  renderCatalogProductList();
+}
+$('backToCategories').addEventListener('click', function(){
+  $('tabCategoryProducts').style.display='none';
+  $('tabCatalog').style.display='block';
+  renderCatalogCategoryList();
+});
+
+function renderCatalogProductList(){
+  var wrap=$('catalogProductList'); wrap.innerHTML='';
+  var items=state.products.filter(function(p){return p.catId===activeAdminCatId;});
+  if(!items.length){wrap.innerHTML='<div class="empty-state"><div class="t">'+t('noProducts')+'</div></div>';return;}
+  items.forEach(function(p){
+    var row=document.createElement('div'); row.className='admin-product-row';
+    row.innerHTML='<img><div class="apn"></div><div class="apt"></div><div class="actions"><button class="action-btn edit">✎ '+t('edit')+'</button><button class="action-btn delete">✕ '+t('delete')+'</button></div>';
+    row.querySelector('img').src=p.photo; row.querySelector('.apn').textContent=p.name; row.querySelector('.apt').textContent=fmt(productTotal(p));
+    row.querySelector('.edit').addEventListener('click',function(){openProductForm(p);});
+    row.querySelector('.delete').addEventListener('click',function(){if(confirm(t('confirmDelete'))){state.products=state.products.filter(function(x){return x.id!==p.id;});markDirty();renderCatalogProductList();renderProducts();}});
+    wrap.appendChild(row);
+  });
+}
+
+/* ============ ADMIN: PRODUCT FORM ============ */
+var draftProduct=null, editingProductId=null;
+function openProductForm(product){
+  editingProductId=product?product.id:null;
+  draftProduct=product?JSON.parse(JSON.stringify(product)):{id:null,photo:null,name:'',lines:[{size:'',price:0}]};
+  $('tabCategoryProducts').style.display='none'; $('tabProductForm').style.display='block';
+  $('prodPhotoPreview').innerHTML=draftProduct.photo?'<img src="'+draftProduct.photo+'">':'<span style="font-size:10px;color:var(--text-dim)">Foto yok</span>';
+  $('prodNameInput').value=draftProduct.name||''; renderPriceLines();
+}
+$('addProductBtn').addEventListener('click',function(){openProductForm(null);});
+$('backToCatProducts').addEventListener('click',function(){$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';});
+$('prodPhotoInput').addEventListener('change',function(e){
+  var file=e.target.files[0]; if(!file)return;
+  if(file.size>8*1024*1024){alert('Fotoğraf 8 MB altında olmalı.');return;}
+  readImageCompressed(file,1600,1200,.88,function(data){draftProduct.photo=data;$('prodPhotoPreview').innerHTML='<img src="'+data+'">';markDirty();});
+});
+$('prodNameInput').addEventListener('input',function(e){draftProduct.name=e.target.value;});
+function renderPriceLines(){
+  var wrap=$('priceLinesWrap');wrap.innerHTML='';
+  draftProduct.lines.forEach(function(line,idx){
+    var row=document.createElement('div');row.className='price-line';
+    var a=document.createElement('input');a.type='text';a.placeholder=t('sizeLabel');a.value=line.size||'';
+    var b=document.createElement('input');b.type='number';b.placeholder=t('priceLabel');b.value=line.price||0;b.style.maxWidth='110px';
+    var rm=document.createElement('button');rm.className='rm';rm.textContent='✕';
+    a.addEventListener('input',function(){line.size=a.value;});b.addEventListener('input',function(){line.price=Number(b.value)||0;updateAutoTotal();});
+    rm.addEventListener('click',function(){if(draftProduct.lines.length===1){line.size='';line.price=0;}else{draftProduct.lines.splice(idx,1);}renderPriceLines();});
+    row.append(a,b,rm);wrap.appendChild(row);
+  });updateAutoTotal();
+}
+function updateAutoTotal(){var total=draftProduct.lines.reduce(function(s,l){return s+Number(l.price||0);},0);$('prodAutoTotal').textContent='₺'+total.toLocaleString('tr-TR');}
+$('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({size:'',price:0});renderPriceLines();});
+$('saveProductBtn').addEventListener('click',function(){
+  var name=draftProduct.name.trim(); if(!name){alert(state.lang==='tr'?'Ürün adı girin':'Enter a product name');return;}
+  var lines=draftProduct.lines.filter(function(l){return String(l.size||'').trim()!=='';}).map(function(l){return {size:String(l.size).trim(),price:Number(l.price)||0};});
+  if(!lines.length){alert(state.lang==='tr'?'En az bir ölçü/fiyat kalemi girin':'Add at least one size/price line');return;}
+  if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
+  else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
+  markDirty();$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';renderCatalogProductList();renderProducts();
+});
+
+function normalizeState(){
+  state.rates=state.rates||{USD:34.5,EUR:37.2};
+  state.settings=Object.assign({bg:'#0a0a0b',accent:'#d4af6a',text:'#f3efe4',card:'#161410',chip:'#1a1712',logo:null,logoSize:150,thumbSize:150,pdfFormat:'detailed'},state.settings||{});
+  if(!Array.isArray(state.categories)) state.categories=[];
+  if(!Array.isArray(state.products)) state.products=[];
+  if(!/^\d{4,8}$/.test(String(state.pin||''))) state.pin='1234';
+  if(!state.currentCat || !state.categories.some(function(c){return c.id===state.currentCat;})) state.currentCat=state.categories[0] ? state.categories[0].id : null;
+}
+
+/* ============ PERSISTENCE ============ */
+var STORAGE_KEY='ofisKatalog_v3';
+function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat};}
+function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));return true;}catch(e){console.error(e);alert('Tarayıcı depolama alanı dolu. Büyük fotoğrafları küçültün veya yedek alın.');return false;}}
+function loadFromStorage(){try{var raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;var d=JSON.parse(raw);if(!d||!Array.isArray(d.categories)||!Array.isArray(d.products))return;Object.assign(state,d);normalizeState();}catch(e){console.warn('Storage load failed',e);}}
+$('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;closeOverlay('saveChoiceOverlay');closeOverlay('adminOverlay');}});
+$('saveContinueBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;closeOverlay('saveChoiceOverlay');}});
+$('exportDataBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ofis-katalog-yedek.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},500);});
+$('importDataInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.categories||!d.products)throw Error();Object.assign(state,d);applyTheme();$('langLabel').textContent=state.lang.toUpperCase();$('curLabel').textContent=state.currency==='TRY'?'₺ TL':state.currency==='USD'?'$ Dolar':'€ Euro';renderLogos();renderCats();renderProducts();renderCatalogCategoryList();markDirty();alert(t('saveSuccess'));}catch(err){alert('Geçersiz yedek dosyası.');}};r.readAsText(f);e.target.value='';});
+
+/* ============ PDF EXPORT ============ */
+function buildPdfCatalog(){
+  var cat=state.categories.find(function(c){return c.id===state.currentCat;});
+  var items=state.products.filter(function(p){return p.catId===state.currentCat;});
+  var box=document.createElement('div'); box.id='pdfRender';
+  box.style.cssText='position:fixed;left:-100000px;top:0;width:1120px;background:#fff;color:#191713;padding:70px;font-family:Arial,sans-serif;';
+  var logo=state.settings.logo?'<img src="'+state.settings.logo+'" style="width:130px;height:80px;object-fit:contain;margin-bottom:18px">':'';
+  box.innerHTML=logo+'<div style="font-family:Georgia,serif;font-size:34px;font-weight:700;margin-bottom:8px">'+escapeHtml(state.lang==='tr'?cat.tr:cat.en)+'</div><div style="font-size:14px;color:#777;margin-bottom:34px">'+escapeHtml($('dateLabel').textContent)+'</div><div id="pdfGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:22px"></div>';
+  var grid=box.querySelector('#pdfGrid');
+  items.forEach(function(p){
+    var card=document.createElement('div');card.style.cssText='border:1px solid #ddd;border-radius:14px;overflow:hidden;background:#fff;break-inside:avoid;';
+    var img=document.createElement('img');img.src=p.photo;img.style.cssText='width:100%;height:260px;object-fit:contain;background:#f7f6f3;display:block;';
+    var body=document.createElement('div');body.style.cssText='padding:18px';
+    var title=document.createElement('div');title.textContent=p.name;title.style.cssText='font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:10px;';
+    body.appendChild(title);
+    if(state.settings.pdfFormat==='detailed'){p.lines.forEach(function(l){var r=document.createElement('div');r.textContent=l.size+' — '+fmt(l.price);r.style.cssText='font-size:13px;color:#555;padding:5px 0;border-bottom:1px solid #eee;';body.appendChild(r);});}
+    var total=document.createElement('div');total.textContent='Toplam  '+fmt(productTotal(p));total.style.cssText='font-size:16px;font-weight:800;margin-top:12px;';body.appendChild(total);
+    card.append(img,body);grid.appendChild(card);
+  });
+  document.body.appendChild(box);return box;
+}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+$('pdfBtn').addEventListener('click',function(){
+  if(!window.jspdf||!window.html2canvas){alert('PDF bileşenleri yüklenemedi. İnternet bağlantınızı kontrol edin.');return;}
+  var cat=state.categories.find(function(c){return c.id===state.currentCat;});if(!cat)return;
+  var items=state.products.filter(function(p){return p.catId===state.currentCat;});
+  if(!items.length){alert(t('noProducts'));return;}
+  var box=buildPdfCatalog();
+  html2canvas(box,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(function(canvas){
+    var jsPDF=window.jspdf.jsPDF,doc=new jsPDF('p','mm','a3'),img=canvas.toDataURL('image/jpeg',.94),pageW=297,pageH=420,margin=8,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,offset=0;
+    while(offset<imgH){if(offset>0)doc.addPage();doc.addImage(img,'JPEG',margin,margin-offset,imgW,imgH);offset+=pageH-margin*2;}
+    doc.save((state.lang==='tr'?'katalog-':'catalog-')+String(cat.id)+'.pdf');box.remove();
+  }).catch(function(err){console.error(err);box.remove();alert('PDF oluşturulamadı.');});
+});
+
+/* ============ INIT ============ */
+try{
+  loadFromStorage();
+  normalizeState();
+  applyTheme();
+  applyStaticI18n();
+  renderDate();
+  renderLogos();
+  renderCats();
+  renderProducts();
+}catch(err){
+  console.error('Init error:', err);
+}
+
+})();
+</script>
+</body>
+</html>
