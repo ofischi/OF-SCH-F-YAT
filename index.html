@@ -1582,6 +1582,30 @@ async function drawCatalogProduct(doc,p,x,y,w,h){
   var teamX=Math.min(w-d.team.w*sx-2,d.team.x*sx),teamW=Math.max(10,d.team.w*sx),teamH=Math.max(24,rowH*(rows.length+1));doc.setFillColor.apply(doc,hexRgb(d.headerColor));doc.rect(ox+teamX,oy+tableY,teamW,teamH,'F');doc.setTextColor(255,255,255);doc.setFont(d.font,'bold');doc.setFontSize(Math.max(3.5,6*sy));doc.text('TAKIM',ox+teamX+teamW/2,oy+tableY+8*sy,{align:'center'});doc.setFontSize(Math.max(3.2,d.priceSize*sy));doc.text(pdfMoney(team),ox+teamX+teamW/2,oy+tableY+17*sy,{align:'center',maxWidth:teamW-2});doc.setTextColor(25,25,25);
   if(d.showFooter){doc.setDrawColor(205,205,205);doc.setLineWidth(.2);doc.line(ox+3,oy+h-6,ox+w-3,oy+h-6);doc.setFont(d.font,'normal');doc.setFontSize(Math.max(3,d.footerSize*sy));doc.setTextColor(100,100,100);doc.text(pdfSafeText(state.settings.companyInfo||'OFISCHI Büro Mobilyalari'),ox+w/2,oy+h-2.5,{align:'center',maxWidth:w-6});}
 }
+function ensurePdfLibraries(){
+  if(window.jspdf && window.jspdf.jsPDF) return Promise.resolve();
+  if(window.__ofischiPdfLoader) return window.__ofischiPdfLoader;
+  var urls=[
+    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+    'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js'
+  ];
+  window.__ofischiPdfLoader=(async function(){
+    for(var i=0;i<urls.length;i++){
+      try{
+        await new Promise(function(resolve,reject){
+          var sc=document.createElement('script');
+          sc.src=urls[i]; sc.async=true;
+          sc.onload=resolve; sc.onerror=function(){reject(new Error('PDF kütüphanesi yüklenemedi: '+sc.src));};
+          document.head.appendChild(sc);
+        });
+        if(window.jspdf && window.jspdf.jsPDF) return;
+      }catch(e){ console.warn(e); }
+    }
+    throw new Error('jsPDF yüklenemedi. PDF oluşturmak için internet bağlantısı gereklidir.');
+  })();
+  return window.__ofischiPdfLoader;
+}
+
 async function exportCatalogPdf(){
   var d=pdfDesign(),orientation=d.orientation||'portrait',format=(d.format||'A3').toLowerCase(),doc=new window.jspdf.jsPDF({orientation:orientation,unit:'mm',format:format,compress:true});
   var base=(format==='a4'?{portrait:[210,297],landscape:[297,210]}:{portrait:[297,420],landscape:[420,297]})[orientation]||[297,420],W=base[0],H=base[1],m=Math.max(d.margin.left,d.margin.right,d.margin.top,d.margin.bottom),cats=catalogCats(),pageCount=1,logo=await pdfImageData(state.settings.logo),cover=await pdfImageData(state.settings.catalogCover);
@@ -1605,7 +1629,7 @@ async function exportCatalogPdf(){
 }
 $('pdfBtn').addEventListener('click',function(){
   var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';self.textContent='PDF HAZIRLANIYOR...';
-  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF olusturulamadi. Internet baglantisini ve PDF kutuphanesini kontrol edin.');}).finally(function(){self.dataset.busy='0';self.textContent='PDF';});
+  ensurePdfLibraries().then(exportCatalogPdf).catch(function(e){console.error(e);alert('Katalog PDF oluşturulamadı.\n\n'+(e&&e.message?e.message:e));}).finally(function(){self.dataset.busy='0';self.textContent='PDF';});
 });
 function quoteCalc(){
   var entries=getQuoteEntries(),sub=entries.reduce(function(s,e){return s+productTotal(e.p)*e.quantity;},0),meta=state.quoteMeta||{};
@@ -1626,7 +1650,7 @@ async function exportQuotePdf(){
   doc.setFontSize(7);doc.setTextColor(125,95,45);doc.text('ODEME SARTLARI',m,y+61);doc.text('ACIKLAMA / NOT',m+98,y+61);doc.setTextColor(70,70,70);pdfText(doc,state.settings.paymentTerms||'-',m,y+68,85,7);pdfText(doc,meta.note||'-',m+98,y+68,88,7);
   pdfFooter(doc,W,H,doc.getNumberOfPages(),doc.getNumberOfPages());doc.save('ofischi-teklif-'+new Date().toISOString().slice(0,10)+'.pdf');
 }
-if($('quotePdf')) $('quotePdf').addEventListener('click',function(){var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';try{quoteMetaFromForm();}catch(e){};ensurePdfLibraries().then(exportQuotePdf).catch(function(e){console.error(e);alert('Teklif PDF olusturulamadi.');}).finally(function(){self.dataset.busy='0';});});
+if($('quotePdf')) $('quotePdf').addEventListener('click',function(){var self=this;if(self.dataset.busy==='1')return;self.dataset.busy='1';try{quoteMetaFromForm();}catch(e){};ensurePdfLibraries().then(exportQuotePdf).catch(function(e){console.error(e);alert('Teklif PDF oluşturulamadı.\n\n'+(e&&e.message?e.message:e));}).finally(function(){self.dataset.busy='0';});});
 
 
 
