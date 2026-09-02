@@ -430,6 +430,15 @@ input,select,button{touch-action:manipulation;}
  .field-row{flex-direction:column;gap:0}.sheet{max-height:92vh}.sheet .sheet-body{padding:18px}
 }
 @media (min-width:1400px){.products{grid-template-columns:repeat(5,minmax(0,1fr));}}
+
+/* ===== V5 CATALOG / QUOTE / SEARCH ===== */
+.search-wrap{max-width:1500px;margin:0 auto;padding:14px clamp(12px,2vw,28px) 0;display:flex;gap:10px;align-items:center}
+.search-box{flex:1;position:relative}.search-box input{width:100%;padding:13px 15px 13px 42px;border-radius:13px;background:var(--chip-bg);border:1px solid var(--border);color:var(--text);font-size:13px}.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;stroke:var(--gold)}
+.quote-btn{white-space:nowrap}.product-card .select-add{position:absolute;right:9px;top:9px;background:rgba(10,10,11,.78);border:1px solid var(--border-strong);color:var(--gold);border-radius:10px;padding:6px 8px;font-size:11px;font-weight:800;z-index:2}.product-card{position:relative}
+.lightbox{position:fixed;inset:0;z-index:600;display:none;background:rgba(0,0,0,.9);align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:94vw;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:0 20px 70px #000}.lightbox-close{position:absolute;right:20px;top:18px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--border-strong);font-size:18px;color:#fff}.sheet .sheet-img{cursor:zoom-in}
+.quote-overlay{position:fixed;inset:0;z-index:500;display:none;background:rgba(0,0,0,.75);align-items:flex-end;justify-content:center}.quote-overlay.open{display:flex}.quote-panel{width:min(100%,760px);max-height:92vh;overflow:auto;background:var(--panel-bg);border:1px solid var(--border-strong);border-radius:22px 22px 0 0;padding:22px}.quote-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.quote-title{font:600 21px 'Playfair Display',serif}.quote-table{width:100%;border-collapse:collapse;font-size:12px}.quote-table th,.quote-table td{padding:9px 6px;border-bottom:1px solid var(--border);text-align:left}.quote-table th{color:var(--text-dim);font-size:10px;text-transform:uppercase}.quote-table input{width:65px;padding:7px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-total{display:flex;justify-content:flex-end;gap:24px;font-size:17px;font-weight:800;padding:16px 0}.quote-total .discount{color:#e3a79a}.quote-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quote-form input{width:100%;padding:11px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}.quote-empty{text-align:center;color:var(--text-dim);padding:30px}.sync-status{font-size:11px;color:var(--text-dim);margin-top:8px}.sync-status.ok{color:#9bd6a3}.sync-status.err{color:#e0897a}
+@media(max-width:600px){.search-wrap{padding-top:9px}.search-wrap .quote-btn{padding:9px 10px;font-size:11px}.quote-form{grid-template-columns:1fr}.quote-panel{padding:16px}.quote-table{font-size:10.5px}.quote-table th,.quote-table td{padding:7px 4px}}
+
 </style>
 </head>
 <body>
@@ -479,11 +488,37 @@ input,select,button{touch-action:manipulation;}
     <div class="date-row"><span class="line"></span><span class="date" id="dateLabel"></span><span class="line"></span></div>
   </div>
 
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+      <input id="searchInput" type="search" placeholder="Ürün ara..." autocomplete="off">
+    </div>
+    <button class="pill-btn quote-btn" id="quoteBtn">📋 <span id="quoteCount">0</span> Teklif</button>
+  </div>
+
   <div class="cats-wrap">
     <div class="cats" id="catsRow"></div>
   </div>
   <div class="products" id="productsGrid"></div>
 </div>
+
+<!-- QUOTE -->
+<div class="quote-overlay" id="quoteOverlay">
+  <div class="quote-panel">
+    <div class="quote-head"><div class="quote-title">Teklif Oluştur</div><button class="icon-btn" id="quoteClose">✕</button></div>
+    <div id="quoteItems"></div>
+    <div class="quote-form">
+      <input id="quoteCustomer" placeholder="Müşteri / Firma">
+      <input id="quotePhone" placeholder="Telefon">
+      <input id="quoteDiscount" type="number" min="0" max="100" step="0.1" placeholder="İskonto %">
+      <input id="quoteNote" placeholder="Not / Teslimat bilgisi">
+    </div>
+    <div class="quote-total"><span>Ara Toplam: <b id="quoteSubtotal">₺0</b></span><span class="discount">İskonto: <b id="quoteDiscountValue">₺0</b></span><span>NET: <b id="quoteGrandTotal">₺0</b></span></div>
+    <div class="quote-actions"><button class="small-btn" id="quoteClear">Temizle</button><button class="small-btn accent-btn" id="quotePdf">Teklif PDF</button></div>
+  </div>
+</div>
+<!-- IMAGE LIGHTBOX -->
+<div class="lightbox" id="imageLightbox"><button class="lightbox-close" id="lightboxClose">✕</button><img id="lightboxImg" src="" alt=""></div>
 
 <!-- PRODUCT DETAIL SHEET -->
 <div class="modal-overlay" id="productOverlay">
@@ -589,6 +624,20 @@ input,select,button{touch-action:manipulation;}
             <option value="detailed" data-i18n="pdfDetailed">Detaylı (ölçü ve fiyat kalemleri)</option>
           </select>
         </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Online Veritabanı — Supabase</h3>
+        <div class="field"><label>Supabase URL</label><input type="text" id="supabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+        <div class="field"><label>Supabase Anon Key</label><input type="text" id="supabaseKey" placeholder="eyJ..."></div>
+        <div class="quote-actions" style="justify-content:flex-start"><button class="small-btn accent-btn" id="syncNowBtn">☁ Senkronize Et</button></div>
+        <div class="sync-status" id="syncStatus">Online bağlantı ayarlanmadı.</div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Otomatik EN / TR Çeviri</h3>
+        <div class="field"><label>Çeviri: Türkçe ürün/kategori adı girildiğinde İngilizce otomatik oluşturulur.</label></div>
+        <button class="small-btn" id="translateAllBtn">↔ Tüm İsimleri EN'e Çevir</button>
       </div>
 
       <div class="admin-card">
@@ -735,7 +784,9 @@ var state = {
     {id:'p4', catId:'koltuk', name:'Comfort Ofis Koltuğu', photo:svgPlaceholder('Koltuk','#1c170f'),
       lines:[{size:'Standart', price:2650}]}
   ],
-  currentCat:'vip'
+  currentCat:'vip',
+  search:'', quoteItems:[],
+  cloud:{url:'',key:''}
 };
 
 var unsavedChanges = false;
@@ -842,9 +893,9 @@ function renderProducts(){
     card.className='product-card';
     card.style.animationDelay = (idx*45)+'ms';
     card.innerHTML =
-      '<div class="thumb"><img src="'+p.photo+'"></div>'+
+      '<div class="thumb"><img src="'+p.photo+'"></div><button class="select-add" type="button">+ Teklif</button>'+
       '<div class="info">'+
-        '<div class="name">'+p.name+'</div>'+
+        '<div class="name">'+escapeHtml(state.lang==='en'&&p.en?p.en:p.name)+'</div>'+
         '<div class="price">'+fmt(productTotal(p))+'</div>'+
       '</div>';
     card.addEventListener('click', function(){ openProductSheet(p); });
@@ -855,7 +906,7 @@ function renderProducts(){
 /* ============ PRODUCT DETAIL SHEET ============ */
 function openProductSheet(p){
   $('sheetImg').src = p.photo;
-  $('sheetName').textContent = p.name;
+  $('sheetName').textContent = state.lang==='en' && p.en ? p.en : p.name;
   var rows = $('sheetRows');
   rows.innerHTML = '';
   p.lines.forEach(function(l, i){
@@ -869,6 +920,9 @@ function openProductSheet(p){
   openOverlay('productOverlay');
 }
 $('sheetClose').addEventListener('click', function(){ closeOverlay('productOverlay'); });
+$('sheetImg').addEventListener('click',function(){ $('lightboxImg').src=this.src; openOverlay('imageLightbox'); });
+$('lightboxClose').addEventListener('click',function(){ closeOverlay('imageLightbox'); });
+$('imageLightbox').addEventListener('click',function(e){if(e.target.id==='imageLightbox')closeOverlay('imageLightbox');});
 $('productOverlay').addEventListener('click', function(e){ if(e.target.id==='productOverlay') closeOverlay('productOverlay'); });
 
 /* ============ SPLASH ============ */
@@ -911,6 +965,14 @@ for(var ci=0; ci<curButtons.length; ci++){
   });
 }
 
+/* ============ SEARCH / QUOTE ============ */
+$('searchInput').addEventListener('input',function(e){state.search=e.target.value;renderProducts();});
+function addToQuote(id){if(state.quoteItems.indexOf(id)<0)state.quoteItems.push(id); updateQuoteCount(); saveToStorage();}
+function removeFromQuote(id){state.quoteItems=state.quoteItems.filter(function(x){return x!==id;});renderQuote();updateQuoteCount();saveToStorage();}
+function updateQuoteCount(){$('quoteCount').textContent=state.quoteItems.length;}
+function renderQuote(){var wrap=$('quoteItems');var ps=state.quoteItems.map(function(id){return state.products.find(function(p){return p.id===id;});}).filter(Boolean);if(!ps.length){wrap.innerHTML='<div class="quote-empty">Teklif için ürün ekleyin.</div>';updateQuoteTotals();return;}var html='<table class="quote-table"><thead><tr><th>Ürün</th><th>Adet</th><th>Birim</th><th>Toplam</th><th></th></tr></thead><tbody>';ps.forEach(function(p){var qty=Number(p._quoteQty||1);html+='<tr><td>'+escapeHtml(p.name)+'</td><td><input type="number" min="1" value="'+qty+'" data-q="'+p.id+'"></td><td>'+fmt(productTotal(p))+'</td><td>'+fmt(productTotal(p)*qty)+'</td><td><button class="small-btn danger-btn" data-r="'+p.id+'">✕</button></td></tr>';});html+='</tbody></table>';wrap.innerHTML=html;wrap.querySelectorAll('input[data-q]').forEach(function(i){i.addEventListener('input',function(){var p=state.products.find(function(x){return x.id===i.dataset.q;});if(p)p._quoteQty=Math.max(1,Number(i.value)||1);updateQuoteTotals();});});wrap.querySelectorAll('button[data-r]').forEach(function(b){b.addEventListener('click',function(){removeFromQuote(b.dataset.r);});});updateQuoteTotals();}
+function updateQuoteTotals(){var sub=state.quoteItems.reduce(function(s,id){var p=state.products.find(function(x){return x.id===id;});return s+(p?productTotal(p)*Number(p._quoteQty||1):0);},0);var pct=Math.min(100,Math.max(0,Number($('quoteDiscount').value)||0));var disc=sub*pct/100; $('quoteSubtotal').textContent=fmt(sub);$('quoteDiscountValue').textContent=fmt(disc);$('quoteGrandTotal').textContent=fmt(sub-disc);}
+$('quoteBtn').addEventListener('click',function(){renderQuote();openOverlay('quoteOverlay');});$('quoteClose').addEventListener('click',function(){closeOverlay('quoteOverlay');});$('quoteOverlay').addEventListener('click',function(e){if(e.target.id==='quoteOverlay')closeOverlay('quoteOverlay');});$('quoteDiscount').addEventListener('input',updateQuoteTotals);$('quoteClear').addEventListener('click',function(){state.quoteItems=[];renderQuote();updateQuoteCount();});
 /* ============ PIN / ADMIN OPEN ============ */
 $('settingsBtn').addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation();
   $('pinInput').value='';
@@ -1034,7 +1096,7 @@ function renderCatalogCategoryList(){
 function editCategory(catId){
   var c=state.categories.find(function(x){return x.id===catId;}); if(!c)return;
   var name=prompt(t('categoryEdit'),c.tr); if(!name||!name.trim())return;
-  c.tr=name.trim(); c.en=name.trim(); markDirty(); renderCatalogCategoryList(); renderCats();
+  c.tr=name.trim(); translateText(c.tr).then(function(en){c.en=en;markDirty();renderCatalogCategoryList();renderCats();}); markDirty(); renderCatalogCategoryList(); renderCats();
 }
 function deleteCategory(catId){
   var c=state.categories.find(function(x){return x.id===catId;}); if(!c)return;
@@ -1048,7 +1110,7 @@ $('addCategoryBtn').addEventListener('click', function(){
   var name = prompt(t('newCategoryPrompt'));
   if(name && name.trim()){
     var id = 'cat_' + Date.now();
-    state.categories.push({id:id, tr:name.trim(), en:name.trim()});
+    state.categories.push({id:id, tr:name.trim(), en:name.trim()}); translateText(name.trim()).then(function(en){var c=state.categories.find(function(x){return x.id===id;});if(c){c.en=en;markDirty();renderCats();renderCatalogCategoryList();}});
     renderCatalogCategoryList();
     renderCats();
     markDirty();
@@ -1137,7 +1199,7 @@ function renderPriceLines(){
 }
 function updateAutoTotal(){var total=draftProduct.lines.reduce(function(s,l){return s+Number(l.price||0);},0);$('prodAutoTotal').textContent='₺'+total.toLocaleString('tr-TR');}
 $('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({module:'',size:'',g:'',d:'',y:'',dimensions:'',price:0});renderPriceLines();});
-$('saveProductBtn').addEventListener('click',function(){
+$('saveProductBtn').addEventListener('click',async function(){
   var name=draftProduct.name.trim(); if(!name){alert(state.lang==='tr'?'Ürün adı girin':'Enter a product name');return;}
   var lines=draftProduct.lines.filter(function(l){return String(l.module||l.size||'').trim()!=='';}).map(function(l){
     var module=String(l.module||l.size||'').trim();
@@ -1145,8 +1207,9 @@ $('saveProductBtn').addEventListener('click',function(){
     return {module:module,size:module,g:g,d:d,y:y,dimensions:[g,d,y].filter(Boolean).join(' × '),price:Number(l.price)||0};
   });
   if(!lines.length){alert(state.lang==='tr'?'En az bir modül girin':'Add at least one module');return;}
-  if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
-  else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
+  var english=await translateText(name);
+  if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.en=english;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
+  else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,en:english,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
   markDirty();$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';renderCatalogProductList();renderProducts();
 });
 
@@ -1157,15 +1220,16 @@ function normalizeState(){
   if(!Array.isArray(state.products)) state.products=[];
   if(!/^\d{4,8}$/.test(String(state.pin||''))) state.pin='1234';
   if(!state.currentCat || !state.categories.some(function(c){return c.id===state.currentCat;})) state.currentCat=state.categories[0] ? state.categories[0].id : null;
+  state.cloud=state.cloud||{url:'',key:''}; state.quoteItems=Array.isArray(state.quoteItems)?state.quoteItems:[];
 }
 
 /* ============ PERSISTENCE ============ */
 var STORAGE_KEY='ofisKatalog_v3';
-function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat};}
+function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat,cloud:state.cloud,quoteItems:state.quoteItems};}
 function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));return true;}catch(e){console.error(e);alert('Tarayıcı depolama alanı dolu. Büyük fotoğrafları küçültün veya yedek alın.');return false;}}
 function loadFromStorage(){try{var raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;var d=JSON.parse(raw);if(!d||!Array.isArray(d.categories)||!Array.isArray(d.products))return;Object.assign(state,d);normalizeState();}catch(e){console.warn('Storage load failed',e);}}
-$('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;closeOverlay('saveChoiceOverlay');closeOverlay('adminOverlay');}});
-$('saveContinueBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;closeOverlay('saveChoiceOverlay');}});
+$('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');closeOverlay('adminOverlay');}});
+$('saveContinueBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');}});
 $('exportDataBtn').addEventListener('click',function(){var blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ofis-katalog-yedek.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},500);});
 $('importDataInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.categories||!d.products)throw Error();Object.assign(state,d);applyTheme();$('langLabel').textContent=state.lang.toUpperCase();$('curLabel').textContent=state.currency==='TRY'?'₺ TL':state.currency==='USD'?'$ Dolar':'€ Euro';renderLogos();renderCats();renderProducts();renderCatalogCategoryList();markDirty();alert(t('saveSuccess'));}catch(err){alert('Geçersiz yedek dosyası.');}};r.readAsText(f);e.target.value='';});
 
@@ -1204,6 +1268,24 @@ $('pdfBtn').addEventListener('click',function(){
   }).catch(function(err){console.error(err);box.remove();alert('PDF oluşturulamadı.');});
 });
 
+/* ============ QUOTE PDF ============ */
+$('quotePdf').addEventListener('click',function(){
+  if(!window.jspdf){alert('PDF bileşeni yüklenemedi.');return;}
+  var jsPDF=window.jspdf.jsPDF,doc=new jsPDF('p','mm','a3'), y=22, margin=18, pageW=297;
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.text('OFİSCHİ — TEKLİF',margin,y);y+=10;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(new Date().toLocaleDateString('tr-TR'),margin,y);y+=10;
+  doc.text('Müşteri / Firma: '+($('quoteCustomer').value||'-'),margin,y);y+=6;doc.text('Telefon: '+($('quotePhone').value||'-'),margin,y);y+=10;
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('ÜRÜN',margin,y);doc.text('ADET',155,y);doc.text('BİRİM',185,y);doc.text('TOPLAM',235,y);y+=6;doc.line(margin,y,pageW-margin,y);y+=7;doc.setFont('helvetica','normal');
+  state.quoteItems.forEach(function(id){var p=state.products.find(function(x){return x.id===id;});if(!p)return;var qty=Number(p._quoteQty||1),unit=productTotal(p),tot=unit*qty;if(y>390){doc.addPage();y=22;}doc.text(String(p.name).slice(0,48),margin,y);doc.text(String(qty),155,y);doc.text(fmt(unit),185,y);doc.text(fmt(tot),235,y);y+=7;});
+  var sub=state.quoteItems.reduce(function(s,id){var p=state.products.find(function(x){return x.id===id;});return s+(p?productTotal(p)*Number(p._quoteQty||1):0);},0),pct=Number($('quoteDiscount').value)||0,disc=sub*pct/100;
+  y+=8;doc.line(margin,y,pageW-margin,y);y+=9;doc.setFont('helvetica','bold');doc.text('ARA TOPLAM: '+fmt(sub),190,y);y+=7;doc.text('İSKONTO: %'+pct+'  '+fmt(disc),190,y);y+=9;doc.setFontSize(15);doc.text('NET TOPLAM: '+fmt(sub-disc),190,y);if($('quoteNote').value){y+=10;doc.setFontSize(10);doc.setFont('helvetica','normal');doc.text('Not: '+$('quoteNote').value,margin,y);}doc.save('ofischi-teklif.pdf');
+});
+/* ============ CLOUD / TRANSLATION ============ */
+function cloudConfig(){return {url:(state.cloud&&state.cloud.url||'').replace(/\/$/,''),key:(state.cloud&&state.cloud.key||'')}}
+async function cloudSync(){var c=cloudConfig();var st=$('syncStatus');if(!c.url||!c.key){st.textContent='Supabase URL ve Anon Key girilmedi.';st.className='sync-status err';return false;}try{var headers={'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};var payload={id:'main',data:snapshot(),updated_at:new Date().toISOString()};var r=await fetch(c.url+'/rest/v1/ofis_katalog?on_conflict=id',{method:'POST',headers:headers,body:JSON.stringify(payload)});if(!r.ok)throw Error(await r.text());st.textContent='☁ Senkronize edildi — '+new Date().toLocaleTimeString('tr-TR');st.className='sync-status ok';return true;}catch(e){console.error(e);st.textContent='Online senkronizasyon başarısız: '+e.message;st.className='sync-status err';return false;}}
+async function cloudLoad(){var c=cloudConfig();if(!c.url||!c.key)return;try{var r=await fetch(c.url+'/rest/v1/ofis_katalog?select=data&id=eq.main',{headers:{apikey:c.key,Authorization:'Bearer '+c.key}});if(!r.ok)return;var a=await r.json();if(a&&a[0]&&a[0].data){Object.assign(state,a[0].data);normalizeState();applyTheme();applyStaticI18n();renderLogos();renderCats();renderProducts();updateQuoteCount();}}catch(e){console.warn(e)}}
+$('syncNowBtn').addEventListener('click',function(){state.cloud={url:$('supabaseUrl').value.trim(),key:$('supabaseKey').value.trim()};saveToStorage();cloudSync();});
+async function translateText(text){if(!text)return '';try{var u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=tr|en';var r=await fetch(u);var d=await r.json();return d&&d.responseData&&d.responseData.translatedText?d.responseData.translatedText:text;}catch(e){return text;}}
+$('translateAllBtn').addEventListener('click',async function(){var btn=this;btn.disabled=true;for(var i=0;i<state.categories.length;i++){state.categories[i].en=await translateText(state.categories[i].tr);}for(var j=0;j<state.products.length;j++){state.products[j].en=await translateText(state.products[j].name);}markDirty();renderCats();btn.disabled=false;alert('İngilizce isimler güncellendi.');});
 /* ============ INIT ============ */
 try{
   loadFromStorage();
@@ -1214,6 +1296,9 @@ try{
   renderLogos();
   renderCats();
   renderProducts();
+  updateQuoteCount();
+  if($('supabaseUrl')){$('supabaseUrl').value=state.cloud.url||'';$('supabaseKey').value=state.cloud.key||'';}
+  cloudLoad();
 }catch(err){
   console.error('Init error:', err);
 }
