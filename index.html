@@ -4,10 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Ofis Katalog</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700;800&display=swap');
+
 
 :root{
   --bg:#0a0a0b;
@@ -27,7 +25,7 @@
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%;}
 body{
-  font-family:'Manrope',sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
   background:var(--bg);
   color:var(--text);
   overflow-x:hidden;
@@ -36,7 +34,7 @@ body{
 }
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; -webkit-tap-highlight-color:transparent;}
 input,select{font-family:inherit;}
-img{max-width:100%; display:block;}
+img{max-width:100%; display:block; content-visibility:auto;}
 .serif{font-family:'Playfair Display', serif;}
 .gold-text{
   background:linear-gradient(100deg, var(--gold-deep) 0%, var(--gold-light) 35%, var(--gold) 55%, var(--gold-light) 75%, var(--gold-deep) 100%);
@@ -84,7 +82,7 @@ img{max-width:100%; display:block;}
 }
 .splash-ring .splash-logo-inner{width:66%; height:66%; display:flex; align-items:center; justify-content:center;}
 .splash-ring .splash-logo-inner img{width:100%; height:100%; object-fit:contain;}
-.splash-wordmark{font-family:'Playfair Display',serif; font-weight:600; font-size:15px; text-align:center; line-height:1.35;}
+.splash-wordmark{font-family:Georgia,'Times New Roman',serif; font-weight:600; font-size:15px; text-align:center; line-height:1.35;}
 #splash .splash-hint{
   margin-top:26px; font-size:11.5px; color:var(--text-dim); letter-spacing:.12em;
   opacity:0; animation:fadeIn 1s ease .9s forwards;
@@ -148,7 +146,7 @@ img{max-width:100%; display:block;}
 }
 .hero .logo-wrap img{width:100%; height:100%; object-fit:contain; position:relative;}
 .hero .logo-wrap .logo-fallback{
-  font-family:'Playfair Display',serif; font-size:20px; font-weight:600; letter-spacing:.02em;
+  font-family:Georgia,'Times New Roman',serif; font-size:20px; font-weight:600; letter-spacing:.02em;
   border:1px solid var(--border-strong); border-radius:50%; width:100%; height:100%;
   display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.3; padding:8px;
   position:relative;
@@ -188,14 +186,14 @@ img{max-width:100%; display:block;}
 .product-card .thumb img{width:100%; height:100%; object-fit:cover; transition:transform .5s cubic-bezier(.16,1,.3,1);}
 .product-card:active .thumb img{transform:scale(1.06);}
 .product-card .info{padding:11px 13px 13px;}
-.product-card .name{font-family:'Playfair Display',serif; font-size:14px; font-weight:600; margin-bottom:5px; line-height:1.3;}
+.product-card .name{font-family:Georgia,'Times New Roman',serif; font-size:14px; font-weight:600; margin-bottom:5px; line-height:1.3;}
 .product-card .price{font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:.02em;}
 
 .empty-state{
   grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text-dim);
   animation:fadeIn .5s ease;
 }
-.empty-state .t{font-family:'Playfair Display',serif; font-size:16px; font-weight:600; margin-bottom:5px; color:var(--text);}
+.empty-state .t{font-family:Georgia,'Times New Roman',serif; font-size:16px; font-weight:600; margin-bottom:5px; color:var(--text);}
 .empty-state .s{font-size:12.5px;}
 
 /* ---------- MODAL: product detail ---------- */
@@ -222,7 +220,7 @@ img{max-width:100%; display:block;}
 .sheet .sheet-img{width:100%; aspect-ratio:4/3; background:var(--chip-bg); overflow:hidden;}
 .sheet .sheet-img img{width:100%; height:100%; object-fit:cover;}
 .sheet .sheet-body{padding:20px 22px 4px;}
-.sheet .sheet-name{font-family:'Playfair Display',serif; font-size:20px; font-weight:600; margin-bottom:16px;}
+.sheet .sheet-name{font-family:Georgia,'Times New Roman',serif; font-size:20px; font-weight:600; margin-bottom:16px;}
 .sheet .row{
   display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);
   font-size:13.5px; opacity:0; animation:fadeUp .4s ease both;
@@ -232,11 +230,12 @@ img{max-width:100%; display:block;}
 .sheet .total-row{
   display:flex; justify-content:space-between; padding:18px 0 6px; font-size:17px;
 }
-.sheet .total-row .l{font-weight:700; font-family:'Playfair Display',serif;}
+.sheet .total-row .l{font-weight:700; font-family:Georgia,'Times New Roman',serif;}
 .sheet .total-row .r{font-weight:800; color:var(--gold);}
 
 /* ---------- ADMIN ---------- */
 #adminOverlay{
+  pointer-events:none;
   position:fixed; inset:0; z-index:300; display:none;
   background:rgba(6,6,7,.32);
   backdrop-filter:blur(18px) saturate(1.1); -webkit-backdrop-filter:blur(18px) saturate(1.1);
@@ -249,7 +248,7 @@ img{max-width:100%; display:block;}
 }
 #adminOverlay.open .admin-panel{transform:translateY(0);}
 .admin-topline{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-.admin-title{font-family:'Playfair Display',serif; font-size:18px; font-weight:600;}
+.admin-title{font-family:Georgia,'Times New Roman',serif; font-size:18px; font-weight:600;}
 .admin-tabs{display:flex; gap:8px; margin-bottom:18px;}
 .admin-tab{
   padding:9px 17px; border-radius:18px; font-size:12.5px; font-weight:700;
@@ -263,7 +262,7 @@ img{max-width:100%; display:block;}
   padding:17px; margin-bottom:14px;
   animation:fadeUp .4s cubic-bezier(.16,1,.3,1) both;
 }
-.admin-card h3{font-family:'Playfair Display',serif; font-size:14.5px; font-weight:600; margin-bottom:13px; color:var(--gold);}
+.admin-card h3{font-family:Georgia,'Times New Roman',serif; font-size:14.5px; font-weight:600; margin-bottom:13px; color:var(--gold);}
 .field{margin-bottom:12px;}
 .field label{display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; font-weight:600; letter-spacing:.02em;}
 .field input[type=text], .field input[type=number], .field input[type=tel], .field select{
@@ -301,7 +300,7 @@ img{max-width:100%; display:block;}
   transition:border-color .2s, transform .15s;
 }
 .cat-list-row:active{transform:scale(.98);}
-.cat-list-row .cn{font-size:13.5px; font-weight:700; font-family:'Playfair Display',serif;}
+.cat-list-row .cn{font-size:13.5px; font-weight:700; font-family:Georgia,'Times New Roman',serif;}
 .cat-list-row .cc{font-size:11.5px; color:var(--text-dim); margin-top:2px;}
 .cat-list-row .chev{color:var(--gold);}
 .admin-product-row{
@@ -324,7 +323,7 @@ img{max-width:100%; display:block;}
   display:flex; justify-content:space-between; align-items:center; padding:14px 0 4px; font-size:15px; font-weight:800;
   border-top:1px dashed var(--border); margin-top:6px;
 }
-.auto-total .val{color:var(--gold); font-family:'Playfair Display',serif;}
+.auto-total .val{color:var(--gold); font-family:Georgia,'Times New Roman',serif;}
 
 .save-bar{
   position:fixed; left:0; right:0; bottom:0; z-index:320;
@@ -353,7 +352,7 @@ img{max-width:100%; display:block;}
   transform:scale(.92); opacity:0; transition:transform .3s cubic-bezier(.16,1,.3,1), opacity .3s;
 }
 .save-choice-overlay.open .save-choice-box{transform:scale(1); opacity:1;}
-.save-choice-box p{font-size:13.5px; color:var(--text-dim); margin-bottom:18px; font-family:'Playfair Display',serif; font-size:15px; color:var(--text);}
+.save-choice-box p{font-size:13.5px; color:var(--text-dim); margin-bottom:18px; font-family:Georgia,'Times New Roman',serif; font-size:15px; color:var(--text);}
 .save-choice-box .opt{
   width:100%; padding:13px; border-radius:11px; margin-bottom:8px; font-weight:700; font-size:13.5px;
   background:var(--chip-bg); border:1px solid var(--border); transition:transform .15s;
@@ -436,8 +435,8 @@ input,select,button{touch-action:manipulation;}
 .search-box{flex:1;position:relative}.search-box input{width:100%;padding:13px 15px 13px 42px;border-radius:13px;background:var(--chip-bg);border:1px solid var(--border);color:var(--text);font-size:13px}.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;stroke:var(--gold)}
 .quote-btn{white-space:nowrap}.product-card .select-add{position:absolute;right:9px;top:9px;background:rgba(10,10,11,.78);border:1px solid var(--border-strong);color:var(--gold);border-radius:10px;padding:6px 8px;font-size:11px;font-weight:800;z-index:2}.product-card{position:relative}
 .lightbox{position:fixed;inset:0;z-index:600;display:none;background:rgba(0,0,0,.9);align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:94vw;max-height:88vh;object-fit:contain;border-radius:10px;box-shadow:0 20px 70px #000}.lightbox-close{position:absolute;right:20px;top:18px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--border-strong);font-size:18px;color:#fff}.sheet .sheet-img{cursor:zoom-in}
-.quote-overlay{position:fixed;inset:0;z-index:500;display:none;background:rgba(0,0,0,.75);align-items:flex-end;justify-content:center}.quote-overlay.open{display:flex}.quote-panel{width:min(100%,760px);max-height:92vh;overflow:auto;background:var(--panel-bg);border:1px solid var(--border-strong);border-radius:22px 22px 0 0;padding:22px}.quote-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.quote-title{font:600 21px 'Playfair Display',serif}.quote-table{width:100%;border-collapse:collapse;font-size:12px}.quote-table th,.quote-table td{padding:9px 6px;border-bottom:1px solid var(--border);text-align:left}.quote-table th{color:var(--text-dim);font-size:10px;text-transform:uppercase}.quote-table input{width:65px;padding:7px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-total{display:flex;justify-content:flex-end;gap:24px;font-size:17px;font-weight:800;padding:16px 0}.quote-total .discount{color:#e3a79a}.quote-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quote-form input{width:100%;padding:11px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}.quote-empty{text-align:center;color:var(--text-dim);padding:30px}.sync-status{font-size:11px;color:var(--text-dim);margin-top:8px}.sync-status.ok{color:#9bd6a3}.sync-status.err{color:#e0897a}
-@media(max-width:600px){.search-wrap{padding-top:9px}.search-wrap .quote-btn{padding:9px 10px;font-size:11px}.quote-form{grid-template-columns:1fr}.quote-panel{padding:16px}.quote-table{font-size:10.5px}.quote-table th,.quote-table td{padding:7px 4px}}
+.quote-overlay{position:fixed;inset:0;z-index:500;display:none;background:rgba(0,0,0,.75);align-items:flex-end;justify-content:center}.quote-overlay.open{display:flex}.quote-panel{width:min(100%,760px);max-height:92vh;overflow:auto;background:var(--panel-bg);border:1px solid var(--border-strong);border-radius:22px 22px 0 0;padding:22px}.quote-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.quote-title{font:600 21px 'Playfair Display',serif}.quote-table{width:100%;border-collapse:collapse;font-size:12px}.quote-table th,.quote-table td{padding:9px 6px;border-bottom:1px solid var(--border);text-align:left}.quote-table th{color:var(--text-dim);font-size:10px;text-transform:uppercase}.quote-table input{width:65px;padding:7px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-total{display:flex;justify-content:flex-end;gap:24px;font-size:17px;font-weight:800;padding:16px 0}.quote-total .discount{color:#e3a79a}.quote-form{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quote-form input{width:100%;padding:11px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text)}.quote-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}.quote-empty{text-align:center;color:var(--text-dim);padding:30px}.quote-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.quote-meta label{display:block;font-size:10px;color:var(--text-dim);margin-bottom:5px}.quote-meta input,.quote-meta textarea{width:100%;padding:10px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid var(--border);color:var(--text);box-sizing:border-box}.quote-meta textarea{min-height:70px;resize:vertical}.quote-pdf-sheet{width:794px;box-sizing:border-box;background:#fff;color:#171717;font-family:Arial,sans-serif;padding:38px 42px;position:absolute;left:-10000px;top:0}.quote-pdf-head{display:flex;justify-content:space-between;gap:30px;border-bottom:3px solid #c9a45c;padding-bottom:20px}.quote-pdf-logo{width:210px;height:78px;object-fit:contain;object-position:left center}.quote-pdf-company{font-size:12px;line-height:1.55;color:#555;text-align:right;max-width:360px}.quote-pdf-title{font-size:27px;letter-spacing:2px;font-weight:800;margin:24px 0 18px}.quote-pdf-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}.quote-pdf-box{border:1px solid #ddd;border-radius:8px;padding:11px 13px}.quote-pdf-box b{display:block;font-size:9px;color:#8a6d36;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}.quote-pdf-box span{font-size:12px}.quote-pdf-table{width:100%;border-collapse:collapse;table-layout:fixed}.quote-pdf-table th{background:#171717;color:#fff;font-size:9px;padding:9px 7px;text-align:left}.quote-pdf-table td{border-bottom:1px solid #e5e5e5;padding:9px 7px;font-size:10px;vertical-align:middle}.quote-pdf-img{width:68px;height:52px;object-fit:contain;background:#f6f6f4;border-radius:5px}.quote-pdf-total{margin-left:auto;width:300px;margin-top:18px}.quote-pdf-total .r{display:flex;justify-content:space-between;padding:6px 0;font-size:11px}.quote-pdf-total .grand{border-top:2px solid #c9a45c;margin-top:5px;padding-top:10px;font-size:16px;font-weight:800}.quote-pdf-footer{margin-top:28px;border-top:1px solid #ddd;padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:20px}.quote-pdf-footer h4{margin:0 0 6px;font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:#8a6d36}.quote-pdf-footer div{font-size:10px;line-height:1.5;color:#555}.sync-status{font-size:11px;color:var(--text-dim);margin-top:8px}.sync-status.ok{color:#9bd6a3}.sync-status.err{color:#e0897a}
+@media(max-width:600px){.quote-meta{grid-template-columns:1fr}.search-wrap{padding-top:9px}.search-wrap .quote-btn{padding:9px 10px;font-size:11px}.quote-form{grid-template-columns:1fr}.quote-panel{padding:16px}.quote-table{font-size:10.5px}.quote-table th,.quote-table td{padding:7px 4px}}
 
 </style>
 </head>
@@ -510,10 +509,13 @@ input,select,button{touch-action:manipulation;}
     <div class="quote-form">
       <input id="quoteCustomer" placeholder="Müşteri / Firma">
       <input id="quotePhone" placeholder="Telefon">
+      <input id="quoteDate" type="date">
+      <input id="quoteDeliveryDate" type="date">
       <input id="quoteDiscount" type="number" min="0" max="100" step="0.1" placeholder="İskonto %">
+      <input id="quoteVat" type="number" min="0" max="100" step="0.1" placeholder="KDV %">
       <input id="quoteNote" placeholder="Not / Teslimat bilgisi">
     </div>
-    <div class="quote-total"><span>Ara Toplam: <b id="quoteSubtotal">₺0</b></span><span class="discount">İskonto: <b id="quoteDiscountValue">₺0</b></span><span>NET: <b id="quoteGrandTotal">₺0</b></span></div>
+    <div class="quote-total"><span>Ara Toplam: <b id="quoteSubtotal">₺0</b></span><span class="discount">İskonto: <b id="quoteDiscountValue">₺0</b></span><span>KDV: <b id="quoteVatValue">₺0</b></span><span>GENEL TOPLAM: <b id="quoteGrandTotal">₺0</b></span></div>
     <div class="quote-actions"><button class="small-btn" id="quoteClear">Temizle</button><button class="small-btn accent-btn" id="quotePdf">Teklif PDF</button></div>
   </div>
 </div>
@@ -597,6 +599,17 @@ input,select,button{touch-action:manipulation;}
           <label data-i18n="logoSize">Logo Boyutu: <span class="range-val" id="logoSizeVal">150px</span></label>
           <input type="range" id="logoSizeRange" min="60" max="260" value="150">
         </div>
+      </div>
+
+      <div class="admin-card">
+        <h3>Teklif / Firma Bilgileri</h3>
+        <div class="field"><label>Firma Bilgileri</label><textarea id="companyInfoInput" rows="5" placeholder="OFİSCHİ BÜRO MOBİLYALARI
+Adres
+Telefon / E-posta / Web
+Vergi Dairesi / Vergi No"></textarea></div>
+        <div class="field"><label>Ödeme Şartları</label><textarea id="paymentTermsInput" rows="5" placeholder="Örn: %50 peşin, %50 teslimatta.
+Banka bilgileri / diğer şartlar..."></textarea></div>
+        <div class="field"><label>Varsayılan KDV (%)</label><input type="number" id="vatRateInput" min="0" max="100" step="0.1"></div>
       </div>
 
       <div class="admin-card">
@@ -687,6 +700,10 @@ input,select,button{touch-action:manipulation;}
           <label data-i18n="productName">Ürün Adı</label>
           <input type="text" id="prodNameInput">
         </div>
+        <div class="field">
+          <label>Renk</label>
+          <input type="text" id="prodColorInput" placeholder="Örn: Ceviz / Antrasit / Siyah">
+        </div>
         <h3 style="margin-top:14px;" data-i18n="priceLines">MODÜL / G / D / Y / FİYAT (₺)</h3>
         <div id="priceLinesWrap"></div>
         <button class="small-btn" id="addPriceLineBtn">+ <span data-i18n="addLine">Kalem Ekle</span></button>
@@ -753,7 +770,7 @@ var state = {
   rates:{ USD:34.5, EUR:37.2 },
   settings:{
     bg:'#0a0a0b', accent:'#d4af6a', text:'#f3efe4', card:'#161410', chip:'#1a1712',
-    logo:null, logoSize:150, thumbSize:150, pdfFormat:'detailed'
+    logo:null, logoSize:150, thumbSize:150, pdfFormat:'detailed', companyInfo:'', paymentTerms:'', vatRate:20
   },
   categories:[
     {id:'vip', tr:'VİP Makam Takımı', en:'VIP Executive Set'},
@@ -785,11 +802,13 @@ var state = {
       lines:[{size:'Standart', price:2650}]}
   ],
   currentCat:'vip',
-  search:'', quoteItems:[],
+  search:'', quoteItems:[], quoteMeta:{customer:'',phone:'',date:'',deliveryDate:'',discount:0,vat:20,note:''},
   cloud:{url:'',key:''}
 };
 
 var unsavedChanges = false;
+var persistTimer=null;
+function schedulePersist(){clearTimeout(persistTimer);persistTimer=setTimeout(function(){try{saveToStorage();}catch(e){}},500);}
 function t(key){ return (I18N[state.lang] && I18N[state.lang][key]) || key; }
 
 /* ============ overlay helpers ============ */
@@ -899,12 +918,13 @@ function renderProducts(){
     card.className='product-card';
     card.style.animationDelay = (idx*45)+'ms';
     card.innerHTML =
-      '<div class="thumb"><img src="'+p.photo+'"></div><button class="select-add" type="button">+ Teklif</button>'+
+      '<div class="thumb"><img loading="lazy" decoding="async" src="'+p.photo+'"></div><button class="select-add" type="button">+ Teklif</button>'+
       '<div class="info">'+
         '<div class="name">'+escapeHtml(state.lang==='en'&&p.en?p.en:p.name)+'</div>'+
         '<div class="price">'+fmt(productTotal(p))+'</div>'+
       '</div>';
     card.addEventListener('click', function(){ openProductSheet(p); });
+    var pic = card.querySelector('img'); if(pic) pic.addEventListener('error',function(){this.src=svgPlaceholder('GÖRSEL','#241d12');});
     var addBtn = card.querySelector('.select-add');
     addBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); addToQuote(p.id); this.textContent='✓ Eklendi'; setTimeout(function(){ addBtn.textContent='+ Teklif'; },900); });
     grid.appendChild(card);
@@ -913,7 +933,7 @@ function renderProducts(){
 
 /* ============ PRODUCT DETAIL SHEET ============ */
 function openProductSheet(p){
-  $('sheetImg').src = p.photo;
+  $('sheetImg').loading='eager'; $('sheetImg').decoding='async'; $('sheetImg').src = p.photo;
   $('sheetName').textContent = state.lang==='en' && p.en ? p.en : p.name;
   var rows = $('sheetRows');
   rows.innerHTML = '';
@@ -934,10 +954,14 @@ $('imageLightbox').addEventListener('click',function(e){if(e.target.id==='imageL
 $('productOverlay').addEventListener('click', function(e){ if(e.target.id==='productOverlay') closeOverlay('productOverlay'); });
 
 /* ============ SPLASH ============ */
-$('splash').addEventListener('click', function(){
-  $('splash').classList.add('hidden');
-  $('app').classList.add('visible');
-});
+function enterApp(){
+  var sp=$('splash'), app=$('app');
+  if(sp) sp.classList.add('hidden');
+  if(app) app.classList.add('visible');
+}
+$('splash').addEventListener('click', enterApp);
+/* Local HTML files must never remain on a blank splash if a browser blocks a CDN. */
+setTimeout(enterApp, 900);
 
 /* ============ LANG / CURRENCY DROPDOWNS ============ */
 function toggleDropdown(id){
@@ -974,13 +998,13 @@ for(var ci=0; ci<curButtons.length; ci++){
 }
 
 /* ============ SEARCH / QUOTE ============ */
-$('searchInput').addEventListener('input',function(e){state.search=e.target.value;renderProducts();});
-function addToQuote(id){if(state.quoteItems.indexOf(id)<0)state.quoteItems.push(id); updateQuoteCount(); saveToStorage();}
-function removeFromQuote(id){state.quoteItems=state.quoteItems.filter(function(x){return x!==id;});renderQuote();updateQuoteCount();saveToStorage();}
+var searchTimer=null; $('searchInput').addEventListener('input',function(e){state.search=e.target.value; clearTimeout(searchTimer); searchTimer=setTimeout(renderProducts,120);});
+function addToQuote(id){if(state.quoteItems.indexOf(id)<0)state.quoteItems.push(id); updateQuoteCount();}
+function removeFromQuote(id){state.quoteItems=state.quoteItems.filter(function(x){return x!==id;});renderQuote();updateQuoteCount();}
 function updateQuoteCount(){$('quoteCount').textContent=state.quoteItems.length;}
-function renderQuote(){var wrap=$('quoteItems');var ps=state.quoteItems.map(function(id){return state.products.find(function(p){return p.id===id;});}).filter(Boolean);if(!ps.length){wrap.innerHTML='<div class="quote-empty">Teklif için ürün ekleyin.</div>';updateQuoteTotals();return;}var html='<table class="quote-table"><thead><tr><th>Ürün</th><th>Adet</th><th>Birim</th><th>Toplam</th><th></th></tr></thead><tbody>';ps.forEach(function(p){var qty=Number(p._quoteQty||1);html+='<tr><td>'+escapeHtml(p.name)+'</td><td><input type="number" min="1" value="'+qty+'" data-q="'+p.id+'"></td><td>'+fmt(productTotal(p))+'</td><td>'+fmt(productTotal(p)*qty)+'</td><td><button class="small-btn danger-btn" data-r="'+p.id+'">✕</button></td></tr>';});html+='</tbody></table>';wrap.innerHTML=html;wrap.querySelectorAll('input[data-q]').forEach(function(i){i.addEventListener('input',function(){var p=state.products.find(function(x){return x.id===i.dataset.q;});if(p)p._quoteQty=Math.max(1,Number(i.value)||1);updateQuoteTotals();});});wrap.querySelectorAll('button[data-r]').forEach(function(b){b.addEventListener('click',function(){removeFromQuote(b.dataset.r);});});updateQuoteTotals();}
-function updateQuoteTotals(){var sub=state.quoteItems.reduce(function(s,id){var p=state.products.find(function(x){return x.id===id;});return s+(p?productTotal(p)*Number(p._quoteQty||1):0);},0);var pct=Math.min(100,Math.max(0,Number($('quoteDiscount').value)||0));var disc=sub*pct/100; $('quoteSubtotal').textContent=fmt(sub);$('quoteDiscountValue').textContent=fmt(disc);$('quoteGrandTotal').textContent=fmt(sub-disc);}
-$('quoteBtn').addEventListener('click',function(){renderQuote();openOverlay('quoteOverlay');});$('quoteClose').addEventListener('click',function(){closeOverlay('quoteOverlay');});$('quoteOverlay').addEventListener('click',function(e){if(e.target.id==='quoteOverlay')closeOverlay('quoteOverlay');});$('quoteDiscount').addEventListener('input',updateQuoteTotals);$('quoteClear').addEventListener('click',function(){state.quoteItems=[];renderQuote();updateQuoteCount();});
+function renderQuote(){var wrap=$('quoteItems');var ps=state.quoteItems.map(function(id){return state.products.find(function(p){return p.id===id;});}).filter(Boolean);if(!ps.length){wrap.innerHTML='<div class="quote-empty">Teklif için ürün ekleyin.</div>';updateQuoteTotals();return;}var html='<table class="quote-table"><thead><tr><th>Ürün</th><th>Adet</th><th>Birim</th><th>Toplam</th><th></th></tr></thead><tbody>';ps.forEach(function(p){var qty=Number(p._quoteQty||1);html+='<tr><td>'+escapeHtml(p.name)+'</td><td><input type="number" min="1" value="'+qty+'" data-q="'+p.id+'"></td><td>'+fmt(productTotal(p))+'</td><td>'+fmt(productTotal(p)*qty)+'</td><td><button class="small-btn danger-btn" data-r="'+p.id+'">✕</button></td></tr>';});html+='</tbody></table>';wrap.innerHTML=html;wrap.querySelectorAll('input[data-q]').forEach(function(i){i.addEventListener('input',function(){var p=state.products.find(function(x){return x.id===i.dataset.q;});if(p)p._quoteQty=Math.max(1,Number(i.value)||1);updateQuoteTotals(); schedulePersist();});});wrap.querySelectorAll('button[data-r]').forEach(function(b){b.addEventListener('click',function(){removeFromQuote(b.dataset.r);});});updateQuoteTotals();}
+function updateQuoteTotals(){var sub=state.quoteItems.reduce(function(s,id){var p=state.products.find(function(x){return x.id===id;});return s+(p?productTotal(p)*Number(p._quoteQty||1):0);},0);var pct=Math.min(100,Math.max(0,Number($('quoteDiscount').value)||0));var disc=sub*pct/100;var vatRate=Number($('quoteVat').value);if(!Number.isFinite(vatRate))vatRate=Number(state.settings.vatRate||20);var vat=(sub-disc)*Math.max(0,vatRate)/100;$('quoteSubtotal').textContent=fmt(sub);$('quoteDiscountValue').textContent=fmt(disc);$('quoteVatValue').textContent=fmt(vat);$('quoteGrandTotal').textContent=fmt(sub-disc+vat);}
+$('quoteBtn').addEventListener('click',function(){var q=state.quoteMeta||{};$('quoteCustomer').value=q.customer||'';$('quotePhone').value=q.phone||'';$('quoteDate').value=q.date||new Date().toISOString().slice(0,10);$('quoteDeliveryDate').value=q.deliveryDate||'';$('quoteDiscount').value=q.discount||0;$('quoteVat').value=(q.vat??state.settings.vatRate??20);$('quoteNote').value=q.note||'';renderQuote();openOverlay('quoteOverlay');});$('quoteClose').addEventListener('click',function(){closeOverlay('quoteOverlay');});$('quoteOverlay').addEventListener('click',function(e){if(e.target.id==='quoteOverlay')closeOverlay('quoteOverlay');});$('quoteDiscount').addEventListener('input',function(){quoteMetaFromForm();updateQuoteTotals();});$('quoteVat').addEventListener('input',function(){quoteMetaFromForm();updateQuoteTotals();});['quoteCustomer','quotePhone','quoteDate','quoteDeliveryDate','quoteNote'].forEach(function(id){$(id).addEventListener('input',quoteMetaFromForm);});$('quoteClear').addEventListener('click',function(){state.quoteItems=[];renderQuote();updateQuoteCount();schedulePersist();});
 /* ============ PIN / ADMIN OPEN ============ */
 $('settingsBtn').addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation();
   $('pinInput').value='';
@@ -1036,15 +1060,20 @@ function loadAdminFieldsFromState(){
   $('colCard').value = state.settings.card;
   $('colChip').value = state.settings.chip;
   $('pdfFormatSelect').value = state.settings.pdfFormat;
+  if($('companyInfoInput')) $('companyInfoInput').value=state.settings.companyInfo||'';
+  if($('paymentTermsInput')) $('paymentTermsInput').value=state.settings.paymentTerms||'';
+  if($('vatRateInput')) $('vatRateInput').value=Number(state.settings.vatRate ?? 20);
   $('supabaseUrl').value = (state.cloud&&state.cloud.url)||'';
   $('supabaseKey').value = (state.cloud&&state.cloud.key)||'';
   $('newPinInput').value = '';
+  if($('supabaseUrl')) $('supabaseUrl').value = state.cloud && state.cloud.url || '';
+  if($('supabaseKey')) $('supabaseKey').value = state.cloud && state.cloud.key || '';
   renderLogos();
 }
 function readImageCompressed(file,maxW,maxH,quality,done){
   var reader=new FileReader(); reader.onload=function(){var img=new Image();img.onload=function(){var scale=Math.min(1,maxW/img.width,maxH/img.height),c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));var ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);done(c.toDataURL('image/jpeg',quality));};img.src=reader.result;};reader.readAsDataURL(file);
 }
-function markDirty(){ unsavedChanges = true; try{saveToStorage();}catch(e){} }
+function markDirty(){ unsavedChanges = true; schedulePersist(); refreshSaveBarVisibility(); }
 
 $('rateUsd').addEventListener('input', function(e){ state.rates.USD = Number(e.target.value)||0; renderProducts(); markDirty(); });
 $('rateEur').addEventListener('input', function(e){ state.rates.EUR = Number(e.target.value)||0; renderProducts(); markDirty(); });
@@ -1072,6 +1101,9 @@ $('thumbSizeRange').addEventListener('input', function(e){
   });
 });
 $('pdfFormatSelect').addEventListener('change', function(e){ state.settings.pdfFormat = e.target.value; markDirty(); });
+$('companyInfoInput').addEventListener('input',function(e){state.settings.companyInfo=e.target.value;markDirty();});
+$('paymentTermsInput').addEventListener('input',function(e){state.settings.paymentTerms=e.target.value;markDirty();});
+$('vatRateInput').addEventListener('input',function(e){state.settings.vatRate=Math.max(0,Math.min(100,Number(e.target.value)||0));markDirty();});
 $('newPinInput').addEventListener('input', function(e){ if(e.target.value.trim()!=='') { state.pin = e.target.value.trim(); markDirty(); } });
 
 /* ============ SAVE BAR / SAVE CHOICE ============ */
@@ -1159,10 +1191,10 @@ function renderCatalogProductList(){
 var draftProduct=null, editingProductId=null;
 function openProductForm(product){
   editingProductId=product?product.id:null;
-  draftProduct=product?JSON.parse(JSON.stringify(product)):{id:null,photo:null,name:'',lines:[{module:'',size:'',g:'',d:'',y:'',dimensions:'',price:0}]};
+  draftProduct=product?JSON.parse(JSON.stringify(product)):{id:null,photo:null,name:'',color:'',lines:[{module:'',size:'',g:'',d:'',y:'',dimensions:'',price:0}]};
   $('tabCategoryProducts').style.display='none'; $('tabProductForm').style.display='block';
   $('prodPhotoPreview').innerHTML=draftProduct.photo?'<img src="'+draftProduct.photo+'">':'<span style="font-size:10px;color:var(--text-dim)">Foto yok</span>';
-  $('prodNameInput').value=draftProduct.name||''; renderPriceLines();
+  $('prodNameInput').value=draftProduct.name||''; $('prodColorInput').value=draftProduct.color||''; renderPriceLines();
 }
 $('addProductBtn').addEventListener('click',function(){openProductForm(null);});
 $('backToCatProducts').addEventListener('click',function(){$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';});
@@ -1172,6 +1204,7 @@ $('prodPhotoInput').addEventListener('change',function(e){
   readImageCompressed(file,1600,1200,.88,function(data){draftProduct.photo=data;$('prodPhotoPreview').innerHTML='<img src="'+data+'">';markDirty();});
 });
 $('prodNameInput').addEventListener('input',function(e){draftProduct.name=e.target.value;});
+$('prodColorInput').addEventListener('input',function(e){draftProduct.color=e.target.value;});
 function renderPriceLines(){
   var wrap=$('priceLinesWrap');wrap.innerHTML='';
   /* Başlık satırı: MODÜL | G | D | Y | FİYAT */
@@ -1217,25 +1250,26 @@ $('saveProductBtn').addEventListener('click',async function(){
     return {module:module,size:module,g:g,d:d,y:y,dimensions:[g,d,y].filter(Boolean).join(' × '),price:Number(l.price)||0};
   });
   if(!lines.length){alert(state.lang==='tr'?'En az bir modül girin':'Add at least one module');return;}
-  var english=await translateText(name);
-  if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.en=english;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
-  else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,en:english,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
+  var english=draftProduct.en||name;
+  if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.en=english;old.color=String(draftProduct.color||'').trim();old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
+  else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,en:english,color:String(draftProduct.color||'').trim(),photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
   markDirty();$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';renderCatalogProductList();renderProducts();
+  translateText(name).then(function(en){var pp=state.products.find(function(x){return x.id===(editingProductId||state.products[state.products.length-1].id);});if(pp&&en&&en!==name){pp.en=en;markDirty();}}).catch(function(){});
 });
 
 function normalizeState(){
   state.rates=state.rates||{USD:34.5,EUR:37.2};
-  state.settings=Object.assign({bg:'#0a0a0b',accent:'#d4af6a',text:'#f3efe4',card:'#161410',chip:'#1a1712',logo:null,logoSize:150,thumbSize:150,pdfFormat:'detailed'},state.settings||{});
+  state.settings=Object.assign({bg:'#0a0a0b',accent:'#d4af6a',text:'#f3efe4',card:'#161410',chip:'#1a1712',logo:null,logoSize:150,thumbSize:150,pdfFormat:'detailed',companyInfo:'',paymentTerms:'',vatRate:20},state.settings||{});
   if(!Array.isArray(state.categories)) state.categories=[];
   if(!Array.isArray(state.products)) state.products=[];
   if(!/^\d{4,8}$/.test(String(state.pin||''))) state.pin='1234';
   if(!state.currentCat || !state.categories.some(function(c){return c.id===state.currentCat;})) state.currentCat=state.categories[0] ? state.categories[0].id : null;
-  state.cloud=state.cloud||{url:'',key:''}; state.quoteItems=Array.isArray(state.quoteItems)?state.quoteItems:[];
+  state.cloud=state.cloud||{url:'',key:''}; state.quoteItems=Array.isArray(state.quoteItems)?state.quoteItems:[]; state.quoteMeta=Object.assign({customer:'',phone:'',date:'',deliveryDate:'',discount:0,vat:Number(state.settings.vatRate??20),note:''},state.quoteMeta||{}); state.products.forEach(function(p){if(typeof p.color==='undefined')p.color='';});
 }
 
 /* ============ PERSISTENCE ============ */
 var STORAGE_KEY='ofisKatalog_v3';
-function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat,cloud:state.cloud,quoteItems:state.quoteItems};}
+function snapshot(){return {lang:state.lang,currency:state.currency,pin:state.pin,rates:state.rates,settings:state.settings,categories:state.categories,products:state.products,currentCat:state.currentCat,cloud:state.cloud,quoteItems:state.quoteItems,quoteMeta:state.quoteMeta};}
 function saveToStorage(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(snapshot()));return true;}catch(e){console.error(e);alert('Tarayıcı depolama alanı dolu. Büyük fotoğrafları küçültün veya yedek alın.');return false;}}
 function loadFromStorage(){try{var raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;var d=JSON.parse(raw);if(!d||!Array.isArray(d.categories)||!Array.isArray(d.products))return;Object.assign(state,d);normalizeState();}catch(e){console.warn('Storage load failed',e);}}
 $('saveExitBtn').addEventListener('click',function(){if(saveToStorage()){unsavedChanges=false;cloudSync();closeOverlay('saveChoiceOverlay');closeOverlay('adminOverlay');}});
@@ -1244,6 +1278,26 @@ $('exportDataBtn').addEventListener('click',function(){var blob=new Blob([JSON.s
 $('importDataInput').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.categories||!d.products)throw Error();Object.assign(state,d);applyTheme();$('langLabel').textContent=state.lang.toUpperCase();$('curLabel').textContent=state.currency==='TRY'?'₺ TL':state.currency==='USD'?'$ Dolar':'€ Euro';renderLogos();renderCats();renderProducts();renderCatalogCategoryList();markDirty();alert(t('saveSuccess'));}catch(err){alert('Geçersiz yedek dosyası.');}};r.readAsText(f);e.target.value='';});
 
 /* ============ PDF EXPORT ============ */
+function loadScript(src){
+  return new Promise(function(resolve,reject){
+    var existing=document.querySelector('script[data-pdf-src="'+src+'"]');
+    if(existing){existing.addEventListener('load',function(){resolve();},{once:true});existing.addEventListener('error',reject,{once:true});return;}
+    var s=document.createElement('script');s.src=src;s.async=true;s.dataset.pdfSrc=src;
+    s.onload=resolve;s.onerror=function(){reject(new Error('PDF kütüphanesi yüklenemedi'));};document.head.appendChild(s);
+  });
+}
+var pdfLibPromise=null;
+function ensurePdfLibraries(){
+  if(window.jspdf&&window.html2canvas) return Promise.resolve();
+  if(!pdfLibPromise){
+    pdfLibPromise=Promise.all([
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+    ]).then(function(){return new Promise(function(resolve,reject){var t=Date.now();(function wait(){if(window.jspdf&&window.html2canvas)resolve();else if(Date.now()-t>10000)reject(new Error('PDF bileşenleri hazır değil'));else setTimeout(wait,50);})();});});
+  }
+  return pdfLibPromise;
+}
+
 function buildPdfCatalog(){
   var cat=state.categories.find(function(c){return c.id===state.currentCat;});
   var items=state.products.filter(function(p){return p.catId===state.currentCat;});
@@ -1266,28 +1320,47 @@ function buildPdfCatalog(){
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 $('pdfBtn').addEventListener('click',function(){
-  if(!window.jspdf||!window.html2canvas){alert('PDF bileşenleri yüklenemedi. İnternet bağlantınızı kontrol edin.');return;}
-  var cat=state.categories.find(function(c){return c.id===state.currentCat;});if(!cat)return;
+  if(this.dataset.busy==='1') return; this.dataset.busy='1'; var self=this;
+  ensurePdfLibraries().then(function(){
+  var cat=state.categories.find(function(c){return c.id===state.currentCat;});if(!cat){self.dataset.busy='0';return;}
   var items=state.products.filter(function(p){return p.catId===state.currentCat;});
-  if(!items.length){alert(t('noProducts'));return;}
+  if(!items.length){self.dataset.busy='0';alert(t('noProducts'));return;}
   var box=buildPdfCatalog();
-  html2canvas(box,{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(function(canvas){
+  html2canvas(box,{scale:1.25,useCORS:true,backgroundColor:'#ffffff',logging:false}).then(function(canvas){
     var jsPDF=window.jspdf.jsPDF,doc=new jsPDF('p','mm','a3'),img=canvas.toDataURL('image/jpeg',.94),pageW=297,pageH=420,margin=8,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,offset=0;
     while(offset<imgH){if(offset>0)doc.addPage();doc.addImage(img,'JPEG',margin,margin-offset,imgW,imgH);offset+=pageH-margin*2;}
-    doc.save((state.lang==='tr'?'katalog-':'catalog-')+String(cat.id)+'.pdf');box.remove();
-  }).catch(function(err){console.error(err);box.remove();alert('PDF oluşturulamadı.');});
+    doc.save((state.lang==='tr'?'katalog-':'catalog-')+String(cat.id)+'.pdf');box.remove();self.dataset.busy='0';
+  }).catch(function(err){console.error(err);box.remove();alert('PDF oluşturulamadı.');self.dataset.busy='0';});
+  }).catch(function(){self.dataset.busy='0';alert('PDF bileşenleri yüklenemedi. İnternet bağlantınızı kontrol edin.');});
 });
 
 /* ============ QUOTE PDF ============ */
+function quoteMetaFromForm(){
+  state.quoteMeta={customer:$('quoteCustomer').value.trim(),phone:$('quotePhone').value.trim(),date:$('quoteDate').value||new Date().toISOString().slice(0,10),deliveryDate:$('quoteDeliveryDate').value||'',discount:Number($('quoteDiscount').value)||0,vat:Number($('quoteVat').value),note:$('quoteNote').value.trim()};
+  if(!Number.isFinite(state.quoteMeta.vat))state.quoteMeta.vat=Number(state.settings.vatRate||20);
+}
+function fmtDate(v){if(!v)return '-';var d=new Date(v+'T00:00:00');return d.toLocaleDateString('tr-TR');}
+function quoteProductMeasure(p){
+  var lines=(p.lines||[]).map(function(l){var m=l.module||l.size||'';var dims=(l.g||l.d||l.y)?[l.g||'',l.d||'',l.y||''].filter(Boolean).join(' × ')+' cm':(l.dimensions||'');return m+(dims?' / '+dims:'');}).filter(Boolean);return lines.join(' | ')||'-';
+}
+function quotePdfHtml(){
+  var meta=state.quoteMeta, items=state.quoteItems.map(function(id){return state.products.find(function(p){return p.id===id;});}).filter(Boolean);
+  var logo=state.settings.logo?'<img class="quote-pdf-logo" src="'+state.settings.logo+'">':'<div class="quote-pdf-logo" style="display:flex;align-items:center;font-size:26px;font-weight:800;letter-spacing:1px;color:#171717">OFİSCHİ</div>';
+  var company=escapeHtml(state.settings.companyInfo||'').replace(/\n/g,'<br>');
+  var rows=items.map(function(p){var qty=Math.max(1,Number(p._quoteQty||1)),unit=productTotal(p),total=unit*qty;return '<tr><td style="width:82px"><img class="quote-pdf-img" src="'+p.photo+'"></td><td><b>'+escapeHtml(p.name)+'</b><div style="margin-top:4px;color:#777;font-size:9px">'+escapeHtml(quoteProductMeasure(p))+'</div></td><td>'+escapeHtml(p.color||'-')+'</td><td style="text-align:center">'+qty+'</td><td style="text-align:right">'+fmt(unit)+'</td><td style="text-align:right;font-weight:700">'+fmt(total)+'</td></tr>';}).join('');
+  var sub=items.reduce(function(s,p){return s+productTotal(p)*Math.max(1,Number(p._quoteQty||1));},0),pct=Math.min(100,Math.max(0,Number(meta.discount)||0)),disc=sub*pct/100,net=sub-disc,vatRate=Math.max(0,Number(meta.vat)||0),vat=net*vatRate/100,grand=net+vat;
+  return '<div class="quote-pdf-sheet" id="quotePdfSheet"><div class="quote-pdf-head">'+logo+'<div class="quote-pdf-company">'+company+'</div></div><div class="quote-pdf-title">TEKLİF</div><div class="quote-pdf-info"><div class="quote-pdf-box"><b>MÜŞTERİ / FİRMA</b><span>'+escapeHtml(meta.customer||'-')+'</span><div style="margin-top:4px;font-size:10px;color:#666">'+escapeHtml(meta.phone||'')+'</div></div><div class="quote-pdf-box"><b>TEKLİF TARİHİ</b><span>'+fmtDate(meta.date)+'</span><div style="margin-top:4px;font-size:10px;color:#666">TESLİM TARİHİ: '+fmtDate(meta.deliveryDate)+'</div></div></div><table class="quote-pdf-table"><thead><tr><th style="width:82px">GÖRSEL</th><th>ÜRÜN / ÖLÇÜ</th><th style="width:95px">RENK</th><th style="width:45px;text-align:center">ADET</th><th style="width:90px;text-align:right">BİRİM FİYAT</th><th style="width:100px;text-align:right">FİYAT</th></tr></thead><tbody>'+rows+'</tbody></table><div class="quote-pdf-total"><div class="r"><span>ARA TOPLAM</span><b>'+fmt(sub)+'</b></div><div class="r"><span>İSKONTO %'+pct+'</span><b>- '+fmt(disc)+'</b></div><div class="r"><span>KDV %'+vatRate+'</span><b>'+fmt(vat)+'</b></div><div class="r grand"><span>GENEL TOPLAM</span><b>'+fmt(grand)+'</b></div></div><div class="quote-pdf-footer"><div><h4>ÖDEME ŞARTLARI</h4><div>'+escapeHtml(state.settings.paymentTerms||'-').replace(/\n/g,'<br>')+'</div></div><div><h4>AÇIKLAMA / NOT</h4><div>'+escapeHtml(meta.note||'-').replace(/\n/g,'<br>')+'</div></div></div></div>';
+}
 $('quotePdf').addEventListener('click',function(){
-  if(!window.jspdf){alert('PDF bileşeni yüklenemedi.');return;}
-  var jsPDF=window.jspdf.jsPDF,doc=new jsPDF('p','mm','a3'), y=22, margin=18, pageW=297;
-  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.text('OFİSCHİ — TEKLİF',margin,y);y+=10;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(new Date().toLocaleDateString('tr-TR'),margin,y);y+=10;
-  doc.text('Müşteri / Firma: '+($('quoteCustomer').value||'-'),margin,y);y+=6;doc.text('Telefon: '+($('quotePhone').value||'-'),margin,y);y+=10;
-  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text('ÜRÜN',margin,y);doc.text('ADET',155,y);doc.text('BİRİM',185,y);doc.text('TOPLAM',235,y);y+=6;doc.line(margin,y,pageW-margin,y);y+=7;doc.setFont('helvetica','normal');
-  state.quoteItems.forEach(function(id){var p=state.products.find(function(x){return x.id===id;});if(!p)return;var qty=Number(p._quoteQty||1),unit=productTotal(p),tot=unit*qty;if(y>390){doc.addPage();y=22;}doc.text(String(p.name).slice(0,48),margin,y);doc.text(String(qty),155,y);doc.text(fmt(unit),185,y);doc.text(fmt(tot),235,y);y+=7;});
-  var sub=state.quoteItems.reduce(function(s,id){var p=state.products.find(function(x){return x.id===id;});return s+(p?productTotal(p)*Number(p._quoteQty||1):0);},0),pct=Number($('quoteDiscount').value)||0,disc=sub*pct/100;
-  y+=8;doc.line(margin,y,pageW-margin,y);y+=9;doc.setFont('helvetica','bold');doc.text('ARA TOPLAM: '+fmt(sub),190,y);y+=7;doc.text('İSKONTO: %'+pct+'  '+fmt(disc),190,y);y+=9;doc.setFontSize(15);doc.text('NET TOPLAM: '+fmt(sub-disc),190,y);if($('quoteNote').value){y+=10;doc.setFontSize(10);doc.setFont('helvetica','normal');doc.text('Not: '+$('quoteNote').value,margin,y);}doc.save('ofischi-teklif.pdf');
+  var self=this; if(self.dataset.busy==='1') return; self.dataset.busy='1';
+  ensurePdfLibraries().then(function(){
+  quoteMetaFromForm();
+  var items=state.quoteItems.map(function(id){return state.products.find(function(p){return p.id===id;});}).filter(Boolean); if(!items.length){alert('Teklif için ürün ekleyin.');return;}
+  var holder=document.createElement('div');holder.innerHTML=quotePdfHtml();var sheet=holder.firstChild;document.body.appendChild(sheet);
+  html2canvas(sheet,{scale:1.5,useCORS:true,backgroundColor:'#ffffff',logging:false}).then(function(canvas){
+    var jsPDF=window.jspdf.jsPDF,doc=new jsPDF('p','mm','a4'),pageW=210,pageH=297,margin=8,imgW=pageW-margin*2,imgH=canvas.height*imgW/canvas.width,offset=0;while(offset<imgH){if(offset>0)doc.addPage();doc.addImage(canvas.toDataURL('image/jpeg',.94),'JPEG',margin,margin-offset,imgW,imgH);offset+=pageH-margin*2;}doc.save('ofischi-teklif-'+(state.quoteMeta.customer||'musteri').replace(/[^a-z0-9ğüşöçıİĞÜŞÖÇ]+/gi,'-').slice(0,40)+'.pdf');sheet.remove();
+  }).catch(function(){sheet.remove();alert('Teklif PDF oluşturulamadı.');});
+  }).catch(function(){alert('PDF bileşenleri yüklenemedi. İnternet bağlantınızı kontrol edin.');}).finally(function(){self.dataset.busy='0';});
 });
 /* ============ CLOUD / TRANSLATION ============ */
 function cloudConfig(){return {url:(state.cloud&&state.cloud.url||'').replace(/\/$/,''),key:(state.cloud&&state.cloud.key||'')}}
@@ -1298,7 +1371,7 @@ var cloudPollTimer=null;
 function startCloudPolling(){
   if(cloudPollTimer) clearInterval(cloudPollTimer);
   if(cloudConfig().url && cloudConfig().key){
-    cloudPollTimer=setInterval(function(){ if(!unsavedChanges) cloudLoad(); },15000);
+    cloudPollTimer=setInterval(function(){ if(!unsavedChanges && !$('adminOverlay').classList.contains('open')) cloudLoad(); },60000);
   }
 }
 async function translateText(text){if(!text)return '';try{var u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=tr|en';var r=await fetch(u);var d=await r.json();return d&&d.responseData&&d.responseData.translatedText?d.responseData.translatedText:text;}catch(e){return text;}}
