@@ -313,6 +313,11 @@ img{max-width:100%; display:block;}
 .admin-product-row .apt{font-size:12px; color:var(--gold); font-weight:700;}
 
 .price-line{display:flex; gap:8px; margin-bottom:8px; align-items:center;}
+.price-line{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(90px,.65fr) 38px;gap:8px;align-items:center;margin-bottom:8px;}
+.price-line-head{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;}
+.price-line-head div{padding:0 4px;}
+@media(max-width:700px){.price-line{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(72px,.7fr) 34px;gap:5px;}.price-line input{min-width:0;padding:8px 6px;font-size:11px;}}
+
 .price-line input{flex:1;}
 .price-line .rm{width:32px; height:32px; border-radius:9px; background:var(--chip-bg); border:1px solid var(--border); flex:0 0 auto;}
 .auto-total{
@@ -633,7 +638,7 @@ input,select,button{touch-action:manipulation;}
           <label data-i18n="productName">Ürün Adı</label>
           <input type="text" id="prodNameInput">
         </div>
-        <h3 style="margin-top:14px;" data-i18n="priceLines">Ölçü / Fiyat Kalemleri (₺)</h3>
+        <h3 style="margin-top:14px;" data-i18n="priceLines">Modül / G-D-Y / Fiyat (₺)</h3>
         <div id="priceLinesWrap"></div>
         <button class="small-btn" id="addPriceLineBtn">+ <span data-i18n="addLine">Kalem Ekle</span></button>
         <div class="auto-total">
@@ -1097,21 +1102,38 @@ $('prodPhotoInput').addEventListener('change',function(e){
 $('prodNameInput').addEventListener('input',function(e){draftProduct.name=e.target.value;});
 function renderPriceLines(){
   var wrap=$('priceLinesWrap');wrap.innerHTML='';
+  /* Başlık satırı: MODÜL | G-D-Y | FİYAT */
+  var head=document.createElement('div');head.className='price-line price-line-head';
+  var h1=document.createElement('div');h1.textContent='MODÜL';
+  var h2=document.createElement('div');h2.textContent='G-D-Y';
+  var h3=document.createElement('div');h3.textContent='FİYAT (₺)';
+  head.append(h1,h2,h3,document.createElement('div'));wrap.appendChild(head);
   draftProduct.lines.forEach(function(line,idx){
+    /* Eski kayıtlarla uyumluluk: size -> module, dimensions yoksa boş */
+    if(typeof line.module==='undefined') line.module=line.size||'';
+    if(typeof line.dimensions==='undefined') line.dimensions='';
     var row=document.createElement('div');row.className='price-line';
-    var a=document.createElement('input');a.type='text';a.placeholder=t('sizeLabel');a.value=line.size||'';
-    var b=document.createElement('input');b.type='number';b.placeholder=t('priceLabel');b.value=line.price||0;b.style.maxWidth='110px';
-    var rm=document.createElement('button');rm.className='rm';rm.textContent='✕';
-    a.addEventListener('input',function(){line.size=a.value;});b.addEventListener('input',function(){line.price=Number(b.value)||0;updateAutoTotal();});
-    rm.addEventListener('click',function(){if(draftProduct.lines.length===1){line.size='';line.price=0;}else{draftProduct.lines.splice(idx,1);}renderPriceLines();});
-    row.append(a,b,rm);wrap.appendChild(row);
-  });updateAutoTotal();
+    var a=document.createElement('input');a.type='text';a.placeholder='Modül';a.value=line.module||'';
+    var b=document.createElement('input');b.type='text';b.placeholder='G-D-Y';b.value=line.dimensions||'';
+    var c=document.createElement('input');c.type='number';c.placeholder='Fiyat';c.value=line.price||0;
+    var rm=document.createElement('button');rm.className='rm';rm.type='button';rm.textContent='✕';
+    a.addEventListener('input',function(){line.module=a.value;line.size=a.value;});
+    b.addEventListener('input',function(){line.dimensions=b.value;});
+    c.addEventListener('input',function(){line.price=Number(c.value)||0;updateAutoTotal();});
+    rm.addEventListener('click',function(){
+      if(draftProduct.lines.length===1){line.module='';line.size='';line.dimensions='';line.price=0;}
+      else{draftProduct.lines.splice(idx,1);}
+      renderPriceLines();
+    });
+    row.append(a,b,c,rm);wrap.appendChild(row);
+  });
+  updateAutoTotal();
 }
 function updateAutoTotal(){var total=draftProduct.lines.reduce(function(s,l){return s+Number(l.price||0);},0);$('prodAutoTotal').textContent='₺'+total.toLocaleString('tr-TR');}
-$('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({size:'',price:0});renderPriceLines();});
+$('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({module:'',dimensions:'',size:'',price:0});renderPriceLines();});
 $('saveProductBtn').addEventListener('click',function(){
   var name=draftProduct.name.trim(); if(!name){alert(state.lang==='tr'?'Ürün adı girin':'Enter a product name');return;}
-  var lines=draftProduct.lines.filter(function(l){return String(l.size||'').trim()!=='';}).map(function(l){return {size:String(l.size).trim(),price:Number(l.price)||0};});
+  var lines=draftProduct.lines.filter(function(l){return String(l.module||l.size||'').trim()!=='';}).map(function(l){var module=String(l.module||l.size||'').trim();return {module:module,size:module,dimensions:String(l.dimensions||'').trim(),price:Number(l.price)||0};});
   if(!lines.length){alert(state.lang==='tr'?'En az bir ölçü/fiyat kalemi girin':'Add at least one size/price line');return;}
   if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
   else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
@@ -1152,7 +1174,7 @@ function buildPdfCatalog(){
     var body=document.createElement('div');body.style.cssText='padding:18px';
     var title=document.createElement('div');title.textContent=p.name;title.style.cssText='font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:10px;';
     body.appendChild(title);
-    if(state.settings.pdfFormat==='detailed'){p.lines.forEach(function(l){var r=document.createElement('div');r.textContent=l.size+' — '+fmt(l.price);r.style.cssText='font-size:13px;color:#555;padding:5px 0;border-bottom:1px solid #eee;';body.appendChild(r);});}
+    if(state.settings.pdfFormat==='detailed'){p.lines.forEach(function(l){var r=document.createElement('div');var module=l.module||l.size||'';var dims=l.dimensions||'';r.textContent=module+(dims?' — '+dims:'')+' — '+fmt(l.price);r.style.cssText='font-size:13px;color:#555;padding:5px 0;border-bottom:1px solid #eee;';body.appendChild(r);});}
     var total=document.createElement('div');total.textContent='Toplam  '+fmt(productTotal(p));total.style.cssText='font-size:16px;font-weight:800;margin-top:12px;';body.appendChild(total);
     card.append(img,body);grid.appendChild(card);
   });
