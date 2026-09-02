@@ -883,13 +883,19 @@ function renderCats(){
 function renderProducts(){
   var grid = $('productsGrid');
   grid.innerHTML = '';
-  var items = state.products.filter(function(p){ return p.catId===state.currentCat; });
+  var q = String(state.search||'').trim().toLocaleLowerCase('tr-TR');
+  var items = state.products.filter(function(p){
+    if(p.catId!==state.currentCat) return false;
+    if(!q) return true;
+    var hay = [p.name,p.en,p.id].concat((p.lines||[]).map(function(l){return [l.module,l.size,l.g,l.d,l.y,l.dimensions].join(' ');})).join(' ').toLocaleLowerCase('tr-TR');
+    return hay.indexOf(q) !== -1;
+  });
   if(items.length===0){
     grid.innerHTML = '<div class="empty-state"><div class="t">'+t('noProducts')+'</div><div class="s">'+t('noProductsSub')+'</div></div>';
     return;
   }
   items.forEach(function(p, idx){
-    var card = document.createElement('button');
+    var card = document.createElement('div');
     card.className='product-card';
     card.style.animationDelay = (idx*45)+'ms';
     card.innerHTML =
@@ -899,6 +905,8 @@ function renderProducts(){
         '<div class="price">'+fmt(productTotal(p))+'</div>'+
       '</div>';
     card.addEventListener('click', function(){ openProductSheet(p); });
+    var addBtn = card.querySelector('.select-add');
+    addBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); addToQuote(p.id); this.textContent='✓ Eklendi'; setTimeout(function(){ addBtn.textContent='+ Teklif'; },900); });
     grid.appendChild(card);
   });
 }
@@ -1028,6 +1036,8 @@ function loadAdminFieldsFromState(){
   $('colCard').value = state.settings.card;
   $('colChip').value = state.settings.chip;
   $('pdfFormatSelect').value = state.settings.pdfFormat;
+  $('supabaseUrl').value = (state.cloud&&state.cloud.url)||'';
+  $('supabaseKey').value = (state.cloud&&state.cloud.key)||'';
   $('newPinInput').value = '';
   renderLogos();
 }
@@ -1149,7 +1159,7 @@ function renderCatalogProductList(){
 var draftProduct=null, editingProductId=null;
 function openProductForm(product){
   editingProductId=product?product.id:null;
-  draftProduct=product?JSON.parse(JSON.stringify(product)):{id:null,photo:null,name:'',lines:[{size:'',price:0}]};
+  draftProduct=product?JSON.parse(JSON.stringify(product)):{id:null,photo:null,name:'',lines:[{module:'',size:'',g:'',d:'',y:'',dimensions:'',price:0}]};
   $('tabCategoryProducts').style.display='none'; $('tabProductForm').style.display='block';
   $('prodPhotoPreview').innerHTML=draftProduct.photo?'<img src="'+draftProduct.photo+'">':'<span style="font-size:10px;color:var(--text-dim)">Foto yok</span>';
   $('prodNameInput').value=draftProduct.name||''; renderPriceLines();
@@ -1283,7 +1293,14 @@ $('quotePdf').addEventListener('click',function(){
 function cloudConfig(){return {url:(state.cloud&&state.cloud.url||'').replace(/\/$/,''),key:(state.cloud&&state.cloud.key||'')}}
 async function cloudSync(){var c=cloudConfig();var st=$('syncStatus');if(!c.url||!c.key){st.textContent='Supabase URL ve Anon Key girilmedi.';st.className='sync-status err';return false;}try{var headers={'apikey':c.key,'Authorization':'Bearer '+c.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};var payload={id:'main',data:snapshot(),updated_at:new Date().toISOString()};var r=await fetch(c.url+'/rest/v1/ofis_katalog?on_conflict=id',{method:'POST',headers:headers,body:JSON.stringify(payload)});if(!r.ok)throw Error(await r.text());st.textContent='☁ Senkronize edildi — '+new Date().toLocaleTimeString('tr-TR');st.className='sync-status ok';return true;}catch(e){console.error(e);st.textContent='Online senkronizasyon başarısız: '+e.message;st.className='sync-status err';return false;}}
 async function cloudLoad(){var c=cloudConfig();if(!c.url||!c.key)return;try{var r=await fetch(c.url+'/rest/v1/ofis_katalog?select=data&id=eq.main',{headers:{apikey:c.key,Authorization:'Bearer '+c.key}});if(!r.ok)return;var a=await r.json();if(a&&a[0]&&a[0].data){Object.assign(state,a[0].data);normalizeState();applyTheme();applyStaticI18n();renderLogos();renderCats();renderProducts();updateQuoteCount();}}catch(e){console.warn(e)}}
-$('syncNowBtn').addEventListener('click',function(){state.cloud={url:$('supabaseUrl').value.trim(),key:$('supabaseKey').value.trim()};saveToStorage();cloudSync();});
+$('syncNowBtn').addEventListener('click',function(){state.cloud={url:$('supabaseUrl').value.trim(),key:$('supabaseKey').value.trim()};saveToStorage();cloudSync().then(startCloudPolling);});
+var cloudPollTimer=null;
+function startCloudPolling(){
+  if(cloudPollTimer) clearInterval(cloudPollTimer);
+  if(cloudConfig().url && cloudConfig().key){
+    cloudPollTimer=setInterval(function(){ if(!unsavedChanges) cloudLoad(); },15000);
+  }
+}
 async function translateText(text){if(!text)return '';try{var u='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=tr|en';var r=await fetch(u);var d=await r.json();return d&&d.responseData&&d.responseData.translatedText?d.responseData.translatedText:text;}catch(e){return text;}}
 $('translateAllBtn').addEventListener('click',async function(){var btn=this;btn.disabled=true;for(var i=0;i<state.categories.length;i++){state.categories[i].en=await translateText(state.categories[i].tr);}for(var j=0;j<state.products.length;j++){state.products[j].en=await translateText(state.products[j].name);}markDirty();renderCats();btn.disabled=false;alert('İngilizce isimler güncellendi.');});
 /* ============ INIT ============ */
@@ -1298,7 +1315,7 @@ try{
   renderProducts();
   updateQuoteCount();
   if($('supabaseUrl')){$('supabaseUrl').value=state.cloud.url||'';$('supabaseKey').value=state.cloud.key||'';}
-  cloudLoad();
+  cloudLoad().then(startCloudPolling);
 }catch(err){
   console.error('Init error:', err);
 }
