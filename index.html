@@ -313,10 +313,10 @@ img{max-width:100%; display:block;}
 .admin-product-row .apt{font-size:12px; color:var(--gold); font-weight:700;}
 
 .price-line{display:flex; gap:8px; margin-bottom:8px; align-items:center;}
-.price-line{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(90px,.65fr) 38px;gap:8px;align-items:center;margin-bottom:8px;}
-.price-line-head{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;}
+.price-line{display:grid;grid-template-columns:minmax(120px,1.45fr) repeat(3,minmax(58px,.7fr)) minmax(90px,.8fr) 38px;gap:7px;align-items:center;margin-bottom:8px;}
+.price-line-head{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--text-dim);text-transform:uppercase;margin-bottom:5px;}
 .price-line-head div{padding:0 4px;}
-@media(max-width:700px){.price-line{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(72px,.7fr) 34px;gap:5px;}.price-line input{min-width:0;padding:8px 6px;font-size:11px;}}
+@media(max-width:700px){.price-line{grid-template-columns:minmax(72px,1.3fr) repeat(3,minmax(34px,.65fr)) minmax(58px,.8fr) 30px;gap:4px;}.price-line input{min-width:0;padding:8px 5px;font-size:10px;}.price-line .rm{width:30px;height:30px;}}
 
 .price-line input{flex:1;}
 .price-line .rm{width:32px; height:32px; border-radius:9px; background:var(--chip-bg); border:1px solid var(--border); flex:0 0 auto;}
@@ -638,7 +638,7 @@ input,select,button{touch-action:manipulation;}
           <label data-i18n="productName">Ürün Adı</label>
           <input type="text" id="prodNameInput">
         </div>
-        <h3 style="margin-top:14px;" data-i18n="priceLines">Modül / G-D-Y / Fiyat (₺)</h3>
+        <h3 style="margin-top:14px;" data-i18n="priceLines">MODÜL / G / D / Y / FİYAT (₺)</h3>
         <div id="priceLinesWrap"></div>
         <button class="small-btn" id="addPriceLineBtn">+ <span data-i18n="addLine">Kalem Ekle</span></button>
         <div class="auto-total">
@@ -671,7 +671,7 @@ var I18N = {
     colors:"Renkler", colBg:"Arka Plan", colAccent:"Vurgu Rengi", colText:"Yazı Rengi", colCard:"Kart Rengi", colChip:"Kategori Rengi",
     imgSize:"Ürün Görseli Boyutu", pdfFormat:"PDF Formatı", pdfSimple:"Basit (isim + toplam fiyat)", pdfDetailed:"Detaylı (ölçü ve fiyat kalemleri)",
     pinSettings:"Yönetim PIN", newPin:"Yeni PIN", addCategory:"Kategori Ekle", addProduct:"Ürün Ekle",
-    newProduct:"Yeni Ürün", choosePhoto:"Fotoğraf Seç", productName:"Ürün Adı", priceLines:"Ölçü / Fiyat Kalemleri (₺)",
+    newProduct:"Yeni Ürün", choosePhoto:"Fotoğraf Seç", productName:"Ürün Adı", priceLines:"Modül / G / D / Y / Fiyat (₺)",
     addLine:"Kalem Ekle", autoTotal:"Toplam", saveProduct:"Ürünü Kaydet", save:"Kaydet", noProducts:"Bu kategoride henüz ürün yok",
     noProductsSub:"Yönetim panelinden ekleyebilirsiniz.", newCategoryPrompt:"Yeni kategori adı", wrongPin:"Hatalı PIN",
     sizeLabel:"Ölçü", priceLabel:"Fiyat", edit:"Düzenle", delete:"Sil", confirmDelete:"Bu ürünü silmek istediğinize emin misiniz?", confirmCatDelete:"Bu kategoriyi ve içindeki ürünleri silmek istediğinize emin misiniz?", categoryEdit:"Kategori adını düzenle", saveSuccess:"Değişiklikler kaydedildi.", backup:"Yedek Al", restore:"Yedek Yükle", exportData:"Verileri Dışa Aktar", importData:"Verileri İçe Aktar"
@@ -684,7 +684,7 @@ var I18N = {
     colors:"Colors", colBg:"Background", colAccent:"Accent Color", colText:"Text Color", colCard:"Card Color", colChip:"Category Color",
     imgSize:"Product Image Size", pdfFormat:"PDF Format", pdfSimple:"Simple (name + total price)", pdfDetailed:"Detailed (size and price lines)",
     pinSettings:"Admin PIN", newPin:"New PIN", addCategory:"Add Category", addProduct:"Add Product",
-    newProduct:"New Product", choosePhoto:"Choose Photo", productName:"Product Name", priceLines:"Size / Price Lines (₺)",
+    newProduct:"New Product", choosePhoto:"Choose Photo", productName:"Product Name", priceLines:"Module / W / D / H / Price (₺)",
     addLine:"Add Line", autoTotal:"Total", saveProduct:"Save Product", save:"Save", noProducts:"No products in this category yet",
     noProductsSub:"You can add them from the admin panel.", newCategoryPrompt:"New category name", wrongPin:"Wrong PIN",
     sizeLabel:"Size", priceLabel:"Price", edit:"Edit", delete:"Delete", confirmDelete:"Delete this product?", confirmCatDelete:"Delete this category and its products?", categoryEdit:"Edit category name", saveSuccess:"Changes saved.", backup:"Backup", restore:"Restore", exportData:"Export Data", importData:"Import Data"
@@ -862,7 +862,7 @@ function openProductSheet(p){
     var row = document.createElement('div');
     row.className='row';
     row.style.animationDelay = (i*60)+'ms';
-    row.innerHTML = '<span class="l">'+l.size+'</span><span class="r">'+fmt(l.price)+'</span>';
+    row.innerHTML = '<span class="l">'+(l.module||l.size||'')+(l.g||l.d||l.y ? ' — '+[l.g||'',l.d||'',l.y||''].join(' × ')+' cm' : (l.dimensions ? ' — '+l.dimensions : ''))+'</span><span class="r">'+fmt(l.price)+'</span>';
     rows.appendChild(row);
   });
   $('sheetTotal').textContent = fmt(productTotal(p));
@@ -1102,39 +1102,49 @@ $('prodPhotoInput').addEventListener('change',function(e){
 $('prodNameInput').addEventListener('input',function(e){draftProduct.name=e.target.value;});
 function renderPriceLines(){
   var wrap=$('priceLinesWrap');wrap.innerHTML='';
-  /* Başlık satırı: MODÜL | G-D-Y | FİYAT */
+  /* Başlık satırı: MODÜL | G | D | Y | FİYAT */
   var head=document.createElement('div');head.className='price-line price-line-head';
-  var h1=document.createElement('div');h1.textContent='MODÜL';
-  var h2=document.createElement('div');h2.textContent='G-D-Y';
-  var h3=document.createElement('div');h3.textContent='FİYAT (₺)';
-  head.append(h1,h2,h3,document.createElement('div'));wrap.appendChild(head);
+  ['MODÜL','G','D','Y','FİYAT (₺)',''].forEach(function(txt){var h=document.createElement('div');h.textContent=txt;head.appendChild(h);});
+  wrap.appendChild(head);
   draftProduct.lines.forEach(function(line,idx){
-    /* Eski kayıtlarla uyumluluk: size -> module, dimensions yoksa boş */
+    /* Eski kayıtlarla uyumluluk: size/module ve dimensions (G-D-Y) dönüştürülür. */
     if(typeof line.module==='undefined') line.module=line.size||'';
-    if(typeof line.dimensions==='undefined') line.dimensions='';
+    if(typeof line.g==='undefined' || typeof line.d==='undefined' || typeof line.y==='undefined'){
+      var raw=String(line.dimensions||'').replace(/\s/g,'').replace(/×/g,'-');
+      var parts=raw.split('-');
+      line.g=line.g||parts[0]||''; line.d=line.d||parts[1]||''; line.y=line.y||parts[2]||'';
+    }
     var row=document.createElement('div');row.className='price-line';
-    var a=document.createElement('input');a.type='text';a.placeholder='Modül';a.value=line.module||'';
-    var b=document.createElement('input');b.type='text';b.placeholder='G-D-Y';b.value=line.dimensions||'';
-    var c=document.createElement('input');c.type='number';c.placeholder='Fiyat';c.value=line.price||0;
+    var a=document.createElement('input');a.type='text';a.placeholder='Modül';a.value=line.module||line.size||'';
+    var b=document.createElement('input');b.type='number';b.inputMode='decimal';b.placeholder='G';b.value=line.g||'';
+    var c=document.createElement('input');c.type='number';c.inputMode='decimal';c.placeholder='D';c.value=line.d||'';
+    var d=document.createElement('input');d.type='number';d.inputMode='decimal';d.placeholder='Y';d.value=line.y||'';
+    var e=document.createElement('input');e.type='number';e.inputMode='decimal';e.placeholder='Fiyat';e.value=line.price||0;
     var rm=document.createElement('button');rm.className='rm';rm.type='button';rm.textContent='✕';
     a.addEventListener('input',function(){line.module=a.value;line.size=a.value;});
-    b.addEventListener('input',function(){line.dimensions=b.value;});
-    c.addEventListener('input',function(){line.price=Number(c.value)||0;updateAutoTotal();});
+    b.addEventListener('input',function(){line.g=b.value;});
+    c.addEventListener('input',function(){line.d=c.value;});
+    d.addEventListener('input',function(){line.y=d.value;});
+    e.addEventListener('input',function(){line.price=Number(e.value)||0;updateAutoTotal();});
     rm.addEventListener('click',function(){
-      if(draftProduct.lines.length===1){line.module='';line.size='';line.dimensions='';line.price=0;}
+      if(draftProduct.lines.length===1){line.module='';line.size='';line.g='';line.d='';line.y='';line.dimensions='';line.price=0;}
       else{draftProduct.lines.splice(idx,1);}
       renderPriceLines();
     });
-    row.append(a,b,c,rm);wrap.appendChild(row);
+    row.append(a,b,c,d,e,rm);wrap.appendChild(row);
   });
   updateAutoTotal();
 }
 function updateAutoTotal(){var total=draftProduct.lines.reduce(function(s,l){return s+Number(l.price||0);},0);$('prodAutoTotal').textContent='₺'+total.toLocaleString('tr-TR');}
-$('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({module:'',dimensions:'',size:'',price:0});renderPriceLines();});
+$('addPriceLineBtn').addEventListener('click',function(){draftProduct.lines.push({module:'',size:'',g:'',d:'',y:'',dimensions:'',price:0});renderPriceLines();});
 $('saveProductBtn').addEventListener('click',function(){
   var name=draftProduct.name.trim(); if(!name){alert(state.lang==='tr'?'Ürün adı girin':'Enter a product name');return;}
-  var lines=draftProduct.lines.filter(function(l){return String(l.module||l.size||'').trim()!=='';}).map(function(l){var module=String(l.module||l.size||'').trim();return {module:module,size:module,dimensions:String(l.dimensions||'').trim(),price:Number(l.price)||0};});
-  if(!lines.length){alert(state.lang==='tr'?'En az bir ölçü/fiyat kalemi girin':'Add at least one size/price line');return;}
+  var lines=draftProduct.lines.filter(function(l){return String(l.module||l.size||'').trim()!=='';}).map(function(l){
+    var module=String(l.module||l.size||'').trim();
+    var g=String(l.g||'').trim(), d=String(l.d||'').trim(), y=String(l.y||'').trim();
+    return {module:module,size:module,g:g,d:d,y:y,dimensions:[g,d,y].filter(Boolean).join(' × '),price:Number(l.price)||0};
+  });
+  if(!lines.length){alert(state.lang==='tr'?'En az bir modül girin':'Add at least one module');return;}
   if(editingProductId){var old=state.products.find(function(p){return p.id===editingProductId;});if(old){old.name=name;old.photo=draftProduct.photo||old.photo;old.lines=lines;}}
   else state.products.push({id:'p_'+Date.now(),catId:activeAdminCatId,name:name,photo:draftProduct.photo||svgPlaceholder(name.slice(0,6),'#241d12'),lines:lines});
   markDirty();$('tabProductForm').style.display='none';$('tabCategoryProducts').style.display='block';renderCatalogProductList();renderProducts();
@@ -1174,7 +1184,7 @@ function buildPdfCatalog(){
     var body=document.createElement('div');body.style.cssText='padding:18px';
     var title=document.createElement('div');title.textContent=p.name;title.style.cssText='font-family:Georgia,serif;font-size:19px;font-weight:700;margin-bottom:10px;';
     body.appendChild(title);
-    if(state.settings.pdfFormat==='detailed'){p.lines.forEach(function(l){var r=document.createElement('div');var module=l.module||l.size||'';var dims=l.dimensions||'';r.textContent=module+(dims?' — '+dims:'')+' — '+fmt(l.price);r.style.cssText='font-size:13px;color:#555;padding:5px 0;border-bottom:1px solid #eee;';body.appendChild(r);});}
+    if(state.settings.pdfFormat==='detailed'){p.lines.forEach(function(l){var r=document.createElement('div');var module=l.module||l.size||'';var dims=(l.g||l.d||l.y)?[l.g||'',l.d||'',l.y||''].join(' × ')+' cm':(l.dimensions||'');r.textContent=module+(dims?' — '+dims:'')+' — '+fmt(l.price);r.style.cssText='font-size:13px;color:#555;padding:5px 0;border-bottom:1px solid #eee;';body.appendChild(r);});}
     var total=document.createElement('div');total.textContent='Toplam  '+fmt(productTotal(p));total.style.cssText='font-size:16px;font-weight:800;margin-top:12px;';body.appendChild(total);
     card.append(img,body);grid.appendChild(card);
   });
